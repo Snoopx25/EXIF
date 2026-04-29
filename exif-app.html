@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>EXIF — Diário Visual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<script src="https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/lite.umd.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0a0a0a;
+  --bg2:#111;
+  --bg3:#1a1a1a;
+  --bg4:#222;
+  --bg5:#2a2a2a;
+  --surface:#161616;
+  --border:rgba(255,255,255,0.06);
+  --border2:rgba(255,255,255,0.12);
+  --text:#f0f0f0;
+  --text2:#a0a0a0;
+  --text3:#555;
+  --gold:#c9a96e;
+  --gold-dim:rgba(201,169,110,0.12);
+  --gold-border:rgba(201,169,110,0.25);
+  --gold-glow:rgba(201,169,110,0.2);
+  --blue:#5ab0e0;
+  --blue-dim:rgba(90,176,224,0.12);
+  --green:#5ae0a0;
+  --red:#e05a5a;
+  --r:14px;
+  --r-sm:8px;
+  --r-lg:20px;
+  --font-display:'Syne',sans-serif;
+  --font-body:'DM Sans',sans-serif;
+  --font-mono:'DM Mono',monospace;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font-body);overflow:hidden}
+input,textarea,button{font-family:var(--font-body)}
+
+/* ── LAYOUT ── */
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:430px;margin:0 auto;position:relative}
+
+/* ── STATUS BAR (decorativa) ── */
+.status-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 20px 4px;flex-shrink:0}
+.status-time{font-size:14px;font-weight:600;color:var(--text);font-family:var(--font-display)}
+.status-icons{display:flex;gap:6px;align-items:center}
+.status-icons span{font-size:11px;color:var(--text2)}
+
+/* ── SCREENS ── */
+.screen{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;display:none;flex-direction:column}
+.screen::-webkit-scrollbar{display:none}
+.screen.active{display:flex}
+
+/* ── HEADER ── */
+.header{padding:12px 20px 10px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.header-title{font-size:28px;font-weight:800;color:var(--text);font-family:var(--font-display);letter-spacing:-1px}
+.header-sub{font-size:12px;color:var(--text3);font-family:var(--font-mono);letter-spacing:0.5px}
+
+/* ── TAB BAR ── */
+.tab-bar{display:flex;border-top:0.5px solid var(--border);background:rgba(10,10,10,0.95);backdrop-filter:blur(20px);flex-shrink:0;padding:8px 0 max(8px, env(safe-area-inset-bottom))}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0;cursor:pointer;transition:opacity 0.2s}
+.tab svg{width:22px;height:22px;stroke:var(--text3);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;transition:stroke 0.2s}
+.tab span{font-size:10px;color:var(--text3);font-weight:500;letter-spacing:0.3px;transition:color 0.2s}
+.tab.active svg{stroke:var(--gold)}
+.tab.active span{color:var(--gold)}
+
+/* ── HOME FEED ── */
+.feed{flex:1;padding:0 16px 20px;display:flex;flex-direction:column;gap:12px}
+.photo-card{background:var(--bg2);border-radius:var(--r);overflow:hidden;border:0.5px solid var(--border);cursor:pointer;transition:transform 0.15s,opacity 0.15s}
+.photo-card:active{transform:scale(0.98);opacity:0.9}
+.photo-thumb{width:100%;height:200px;object-fit:cover;display:block;background:var(--bg3)}
+.photo-thumb-placeholder{width:100%;height:200px;background:var(--bg3);display:flex;align-items:center;justify-content:center}
+.photo-thumb-placeholder svg{width:40px;height:40px;stroke:var(--text3);fill:none;stroke-width:1;opacity:0.5}
+.fav-badge{position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.6);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--gold);backdrop-filter:blur(4px)}
+.card-photo-wrap{position:relative}
+.exif-pills{display:flex;flex-wrap:wrap;gap:5px;padding:10px}
+.pill{background:var(--bg3);border-radius:6px;padding:3px 8px;font-size:11px;font-family:var(--font-mono);color:var(--text2);border:0.5px solid var(--border)}
+.pill.gold{color:var(--gold);border-color:var(--gold-border);background:var(--gold-dim)}
+.pill.type{margin-left:auto}
+.note-row{padding:0 10px 9px;font-size:11px;color:var(--text3);font-style:italic}
+
+/* ── LIBRARY GRID ── */
+.library-filters{display:flex;gap:8px;padding:0 16px 12px;flex-shrink:0}
+.filter-btn{padding:6px 14px;border-radius:999px;border:0.5px solid var(--text3);background:var(--bg2);font-size:12px;color:var(--text2);font-weight:500;cursor:pointer;transition:all 0.2s;font-family:var(--font-body)}
+.filter-btn.active{border-color:var(--gold-border);background:var(--gold-dim);color:var(--gold)}
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:0 0 20px}
+.grid-item{aspect-ratio:1;position:relative;cursor:pointer;overflow:hidden}
+.grid-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.2s}
+.grid-item:active img{transform:scale(0.97)}
+.grid-item-placeholder{width:100%;height:100%;background:var(--bg3);display:flex;align-items:center;justify-content:center}
+.grid-item-placeholder svg{width:24px;height:24px;stroke:var(--text3);fill:none;stroke-width:1}
+.grid-fav{position:absolute;bottom:5px;right:5px;font-size:11px;color:var(--gold);text-shadow:0 1px 3px rgba(0,0,0,0.8)}
+.grid-exif{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.55);padding:3px 5px;font-size:9px;color:var(--gold);font-family:var(--font-mono);font-weight:500}
+
+/* ── INSIGHTS ── */
+.insights-content{padding:0 16px 20px;display:flex;flex-direction:column;gap:10px;flex:1}
+.ins-hero{background:var(--gold-dim);border-radius:var(--r);border:0.5px solid var(--gold-border);padding:16px}
+.ins-section-label{font-size:9px;font-weight:700;color:var(--text3);letter-spacing:1.2px;margin-bottom:10px;font-family:var(--font-mono)}
+.ins-hero-val{font-size:22px;font-weight:700;color:var(--text);font-family:var(--font-display);margin-bottom:4px}
+.ins-hero-sub{font-size:12px;color:var(--text2);line-height:1.6}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat-card{background:var(--bg2);border-radius:var(--r-sm);border:0.5px solid var(--border);padding:12px}
+.stat-card-title{font-size:9px;color:var(--text3);font-weight:600;letter-spacing:0.8px;margin-bottom:5px;font-family:var(--font-mono)}
+.stat-card-val{font-size:24px;font-weight:700;color:var(--text);line-height:1;font-family:var(--font-display)}
+.stat-card-val.gold{color:var(--gold)}
+.stat-card-sub{font-size:10px;color:var(--text3);margin-top:2px}
+.ins-card{background:var(--bg2);border-radius:var(--r);border:0.5px solid var(--border);padding:14px}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.bar-row:last-child{margin-bottom:0}
+.bar-label{font-size:11px;color:var(--text2);width:52px;font-family:var(--font-mono)}
+.bar-bg{flex:1;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden}
+.bar-fill{height:100%;border-radius:2px;background:var(--gold);transition:width 0.6s ease}
+.bar-pct{font-size:10px;color:var(--text2);width:32px;text-align:right;font-family:var(--font-mono)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.big-num{font-size:30px;font-weight:700;color:var(--text);font-family:var(--font-mono);margin-bottom:2px}
+.big-num-sub{font-size:10px;color:var(--text2)}
+
+/* ── CAPTURE ── */
+.capture-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;gap:20px}
+.camera-frame{width:100%;aspect-ratio:4/3;background:var(--bg2);border-radius:var(--r-lg);border:0.5px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;position:relative;overflow:hidden}
+.camera-frame-corners::before,.camera-frame-corners::after{content:'';position:absolute;width:24px;height:24px;border-color:var(--gold);border-style:solid;opacity:0.6}
+.camera-frame-corners::before{top:16px;left:16px;border-width:2px 0 0 2px}
+.camera-frame-corners::after{bottom:16px;right:16px;border-width:0 2px 2px 0}
+.camera-icon svg{width:48px;height:48px;stroke:var(--text3);fill:none;stroke-width:1;opacity:0.5}
+.camera-hint{font-size:13px;color:var(--text3);text-align:center;line-height:1.6;max-width:220px}
+.capture-btn{width:72px;height:72px;border-radius:50%;background:var(--gold);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;box-shadow:0 0 32px var(--gold-glow),0 0 0 4px rgba(201,169,110,0.15)}
+.capture-btn:active{transform:scale(0.94)}
+.capture-btn svg{width:28px;height:28px;stroke:#0a0a0a;fill:none;stroke-width:2;stroke-linecap:round}
+.capture-input{display:none}
+.capture-meta{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:320px}
+.type-btn{padding:7px 14px;border-radius:999px;border:0.5px solid var(--border);background:var(--bg2);font-size:12px;color:var(--text2);font-weight:500;cursor:pointer;transition:all 0.2s;font-family:var(--font-body)}
+.type-btn.active{border-color:var(--gold-border);background:var(--gold-dim);color:var(--gold)}
+.capture-label{font-size:11px;color:var(--text3);letter-spacing:0.8px;font-family:var(--font-mono)}
+
+/* ── PHOTO DETAIL ── */
+.detail-screen{position:absolute;top:0;left:0;right:0;bottom:0;background:var(--bg);z-index:100;display:none;flex-direction:column;transform:translateY(100%);transition:transform 0.35s cubic-bezier(0.32,0.72,0,1)}
+.detail-screen.open{display:flex;transform:translateY(0)}
+.detail-hero{position:relative;width:100%;height:260px;flex-shrink:0;background:var(--bg3)}
+.detail-hero img{width:100%;height:100%;object-fit:cover;display:block}
+.detail-topbar{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:50px 12px 12px;background:linear-gradient(to bottom,rgba(0,0,0,0.6),transparent)}
+.back-btn{background:rgba(0,0,0,0.5);border:0.5px solid rgba(255,255,255,0.12);border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;color:var(--text);cursor:pointer;backdrop-filter:blur(4px);font-family:var(--font-body)}
+.back-btn:active{opacity:0.7}
+.fav-btn{background:rgba(0,0,0,0.5);border:0.5px solid rgba(255,255,255,0.12);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;backdrop-filter:blur(4px)}
+.type-badge{position:absolute;bottom:10px;right:12px;background:rgba(0,0,0,0.65);border:0.5px solid var(--gold-border);border-radius:var(--r-sm);padding:4px 8px;font-size:9px;color:var(--gold);font-weight:700;letter-spacing:1px;font-family:var(--font-mono)}
+.detail-scroll{flex:1;overflow-y:auto;scrollbar-width:none}
+.detail-scroll::-webkit-scrollbar{display:none}
+.detail-content{padding:16px 16px 40px}
+.detail-date{font-size:11px;color:var(--text3);margin-bottom:2px;font-family:var(--font-mono)}
+.detail-camera{font-size:12px;color:var(--text2);margin-bottom:14px}
+.section-title{font-size:9px;font-weight:700;color:var(--text3);letter-spacing:1.2px;margin-bottom:8px;margin-top:18px;font-family:var(--font-mono)}
+.exif-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.exif-card{background:var(--bg2);border-radius:var(--r-sm);border:0.5px solid var(--border);padding:12px}
+.exif-card-label{font-size:10px;color:var(--text2);margin-bottom:4px;font-weight:500;letter-spacing:0.3px}
+.exif-card-val{font-size:18px;font-weight:700;color:var(--text);font-family:var(--font-mono);margin-bottom:3px}
+.exif-card-val.gold{color:var(--gold)}
+.exif-card-interp{font-size:10px;color:var(--gold);line-height:1.4}
+.technique-card{background:var(--gold-dim);border-radius:var(--r-sm);border:0.5px solid var(--gold-border);padding:14px}
+.technique-title{font-size:11px;color:var(--gold);font-weight:600;margin-bottom:6px;font-family:var(--font-mono)}
+.technique-text{font-size:13px;color:var(--text2);line-height:1.6}
+.note-area{background:var(--bg2);border-radius:var(--r-sm);border:0.5px solid var(--border);padding:12px}
+.note-textarea{width:100%;background:transparent;border:none;outline:none;color:var(--text);font-size:13px;line-height:1.6;resize:none;min-height:60px;font-family:var(--font-body)}
+.note-textarea::placeholder{color:var(--text3)}
+.detail-actions{display:flex;gap:8px;margin-top:16px}
+.action-btn{flex:1;background:var(--bg2);border-radius:var(--r-sm);border:0.5px solid var(--border);padding:12px;font-size:13px;color:var(--text2);font-weight:500;cursor:pointer;text-align:center;transition:all 0.2s;font-family:var(--font-body)}
+.action-btn:active{opacity:0.7}
+.action-btn.fav-active{border-color:var(--gold-border);background:var(--gold-dim);color:var(--gold)}
+.action-btn.danger{color:rgba(224,90,90,0.7);flex:0 0 auto;padding:12px 20px}
+
+/* ── EMPTY STATE ── */
+.empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;gap:12px}
+.empty-icon{font-size:44px;opacity:0.4}
+.empty-title{font-size:18px;font-weight:600;color:var(--text2);font-family:var(--font-display)}
+.empty-text{font-size:14px;color:var(--text3);text-align:center;line-height:1.6}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:0.5px solid var(--border2);border-radius:999px;padding:10px 20px;font-size:13px;color:var(--text);font-weight:500;opacity:0;transition:all 0.3s;pointer-events:none;z-index:200;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.photo-card,.ins-hero,.stat-card,.ins-card{animation:fadeIn 0.3s ease both}
+
+/* ── DRAG OVERLAY ── */
+.drag-overlay{position:fixed;inset:0;background:rgba(201,169,110,0.08);border:2px dashed var(--gold-border);z-index:999;display:none;align-items:center;justify-content:center;pointer-events:none}
+.drag-overlay.active{display:flex}
+.drag-overlay-inner{text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center}
+.drag-overlay-icon{font-size:48px;opacity:0.7}
+.drag-overlay-text{font-size:16px;font-weight:700;color:var(--gold);font-family:var(--font-display);letter-spacing:-0.5px}
+
+/* ── SKELETON ── */
+.skeleton-card{background:var(--bg2);border-radius:var(--r);overflow:hidden;border:0.5px solid var(--border);margin-bottom:12px}
+.skel{background:linear-gradient(90deg,var(--bg2) 0%,var(--bg3) 50%,var(--bg2) 100%);background-size:200% 100%;animation:shimmer 1.4s ease infinite}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel-img{width:100%;height:200px}
+.skel-body{padding:10px;display:flex;flex-direction:column;gap:7px}
+.skel-line{height:9px;border-radius:4px}
+.skel-w80{width:80%}.skel-w55{width:55%}.skel-w35{width:35%}
+
+/* ── PROGRESS BAR ── */
+.progress-bar{position:fixed;top:0;left:0;right:0;max-width:430px;margin:0 auto;height:2px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform 0.3s ease;z-index:1000}
+.progress-bar.on{transform:scaleX(1)}
+
+/* ── EXIF ANIMATION (detail) ── */
+.exif-card{opacity:0;transform:translateY(10px);transition:opacity 0.35s ease,transform 0.35s ease}
+.exif-card.shown{opacity:1;transform:translateY(0)}
+.exif-extra-item{opacity:0;transform:translateY(6px);transition:opacity 0.3s ease,transform 0.3s ease}
+.exif-extra-item.shown{opacity:1;transform:translateY(0)}
+.technique-card{opacity:0;transform:translateY(6px);transition:opacity 0.35s ease,transform 0.35s ease}
+.technique-card.shown{opacity:1;transform:translateY(0)}
+.gps-card-link{display:flex;align-items:center;gap:10px;background:var(--bg2);border-radius:var(--r-sm);border:0.5px solid var(--border);padding:12px;margin-top:8px;text-decoration:none;cursor:pointer;opacity:0;transform:translateY(6px);transition:opacity 0.3s ease,transform 0.3s ease}
+.gps-card-link.shown{opacity:1;transform:translateY(0)}
+.gps-card-link:active{opacity:0.7}
+.gps-icon{font-size:20px}
+.gps-text{flex:1;min-width:0}
+.gps-coords{font-family:var(--font-mono);font-size:10px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gps-hint{font-size:10px;color:var(--text3);margin-top:2px}
+
+/* ── EXTRA EXIF ROWS ── */
+.exif-extra-list{margin-bottom:14px}
+.exif-extra-item{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:0.5px solid var(--border)}
+.exif-extra-item:last-child{border-bottom:none}
+.exif-extra-key{font-family:var(--font-mono);font-size:10px;color:var(--text3)}
+.exif-extra-val{font-family:var(--font-mono);font-size:10px;color:var(--text2);text-align:right;max-width:58%;word-break:break-word}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progressBar"></div>
+<div id="app">
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="status-time" id="clock">9:41</span>
+    <div class="status-icons">
+      <span>●●●</span>
+      <span>WiFi</span>
+      <span>⬛</span>
+    </div>
+  </div>
+
+  <!-- ── SCREEN: HOME ── -->
+  <div class="screen active" id="screen-home">
+    <div class="header">
+      <div>
+        <div class="header-title">EXIF</div>
+      </div>
+      <div class="header-sub" id="home-count"></div>
+    </div>
+    <div class="feed" id="feed-list"></div>
+  </div>
+
+  <!-- ── SCREEN: LIBRARY ── -->
+  <div class="screen" id="screen-library">
+    <div class="header">
+      <div class="header-title">Biblioteca</div>
+    </div>
+    <div class="library-filters">
+      <button class="filter-btn active" onclick="setFilter('all')">Todas</button>
+      <button class="filter-btn" onclick="setFilter('fav')">♥ Favoritas</button>
+    </div>
+    <div class="photo-grid" id="library-grid"></div>
+  </div>
+
+  <!-- ── SCREEN: CAPTURE ── -->
+  <div class="screen" id="screen-capture">
+    <div class="header">
+      <div class="header-title">Capture</div>
+    </div>
+    <div class="capture-area">
+      <div class="camera-frame camera-frame-corners" id="camera-preview">
+        <div class="camera-icon">
+          <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </div>
+        <div class="camera-hint">Selecione o tipo e toque no botão para adicionar uma foto</div>
+      </div>
+      <div class="capture-label">TIPO DE FOTO</div>
+      <div class="capture-meta">
+        <button class="type-btn active" data-type="Geral" onclick="selectType(this)">Geral</button>
+        <button class="type-btn" data-type="Retrato" onclick="selectType(this)">Retrato</button>
+        <button class="type-btn" data-type="Paisagem" onclick="selectType(this)">Paisagem</button>
+        <button class="type-btn" data-type="Bokeh" onclick="selectType(this)">Bokeh</button>
+        <button class="type-btn" data-type="Baixa luz" onclick="selectType(this)">Baixa luz</button>
+        <button class="type-btn" data-type="Telefoto" onclick="selectType(this)">Telefoto</button>
+      </div>
+      <button class="capture-btn" onclick="document.getElementById('fileInput').click()">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#0a0a0a" stroke="none"/></svg>
+      </button>
+      <input type="file" accept="image/*" id="fileInput" class="capture-input" onchange="handleFile(event)">
+    </div>
+  </div>
+
+  <!-- ── SCREEN: INSIGHTS ── -->
+  <div class="screen" id="screen-insights">
+    <div class="header">
+      <div>
+        <div class="header-title">Insights</div>
+        <div class="header-sub" id="insights-sub"></div>
+      </div>
+    </div>
+    <div class="insights-content" id="insights-content"></div>
+  </div>
+
+  <!-- ── TAB BAR ── -->
+  <nav class="tab-bar">
+    <div class="tab active" onclick="goTab('home',this)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span>Feed</span>
+    </div>
+    <div class="tab" onclick="goTab('library',this)">
+      <svg viewBox="0 0 24 24"><rect x="2" y="3" width="6" height="6" rx="1"/><rect x="9" y="3" width="6" height="6" rx="1"/><rect x="16" y="3" width="6" height="6" rx="1"/><rect x="2" y="10" width="6" height="6" rx="1"/><rect x="9" y="10" width="6" height="6" rx="1"/><rect x="16" y="10" width="6" height="6" rx="1"/><rect x="2" y="17" width="6" height="6" rx="1"/><rect x="9" y="17" width="6" height="6" rx="1"/><rect x="16" y="17" width="6" height="6" rx="1"/></svg>
+      <span>Biblioteca</span>
+    </div>
+    <div class="tab" onclick="goTab('capture',this)">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg>
+      <span>Capture</span>
+    </div>
+    <div class="tab" onclick="goTab('insights',this)">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span>Insights</span>
+    </div>
+  </nav>
+
+</div><!-- /app -->
+
+<!-- PHOTO DETAIL OVERLAY -->
+<div class="detail-screen" id="detail-screen">
+  <div class="detail-hero">
+    <img id="detail-img" src="" alt="">
+    <div class="detail-topbar">
+      <button class="back-btn" onclick="closeDetail()">← Voltar</button>
+      <div class="fav-btn" id="detail-fav-btn" onclick="toggleFav()"></div>
+    </div>
+    <div class="type-badge" id="detail-type-badge"></div>
+  </div>
+  <div class="detail-scroll">
+    <div class="detail-content">
+      <div class="detail-date" id="detail-date"></div>
+      <div class="detail-camera" id="detail-camera"></div>
+      <div class="section-title">DADOS EXIF</div>
+      <div class="exif-grid" id="detail-exif-grid"></div>
+      <div id="detail-technique-wrap"></div>
+      <div class="section-title">NOTA PESSOAL</div>
+      <div class="note-area">
+        <textarea class="note-textarea" id="detail-note" placeholder="O que você tentou fazer nessa foto..." rows="3"></textarea>
+      </div>
+      <div class="detail-actions">
+        <div class="action-btn" id="detail-fav-action" onclick="toggleFav()">♡ Favoritar</div>
+        <div class="action-btn danger" onclick="deleteCurrentPhoto()">Excluir</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════
+//  STATE
+// ═══════════════════════════
+let photos = JSON.parse(localStorage.getItem('exif_photos_v3') || '[]');
+let currentFilter = 'all';
+let currentPhotoId = null;
+let selectedType = 'Geral';
+function savePhotos() { localStorage.setItem('exif_photos_v3', JSON.stringify(photos)); }
+
+// ═══════════════════════════
+//  CLOCK
+// ═══════════════════════════
+function updateClock() {
+  const n = new Date();
+  document.getElementById('clock').textContent = n.getHours().toString().padStart(2,'0') + ':' + n.getMinutes().toString().padStart(2,'0');
+}
+updateClock(); setInterval(updateClock, 30000);
+
+// ═══════════════════════════
+//  NAVIGATION
+// ═══════════════════════════
+function goTab(id, el) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  el.classList.add('active');
+  if (id === 'home') renderFeed();
+  if (id === 'library') renderLibrary();
+  if (id === 'insights') renderInsights();
+}
+
+// ═══════════════════════════
+//  EXIF INTERPRETERS
+// ═══════════════════════════
+function interpAperture(f) {
+  if (!f) return {raw:'—',interp:'Sem dados'};
+  const v = parseFloat(f);
+  const i = v<=1.4?'Bokeh extremo':v<=2?'Fundo desfocado':v<=2.8?'Bokeh suave':v<=4?'Foco médio':v<=8?'Foco amplo':v<=16?'Tudo em foco':'Foco máximo';
+  return {raw:`f/${v}`,interp:i};
+}
+function interpShutter(s) {
+  if (!s) return {raw:'—',interp:'Sem dados'};
+  let sec, raw;
+  if (typeof s === 'string' && s.includes('/')) { const [n,d]=s.split('/'); sec=+n/+d; raw=s+'s'; }
+  else { sec=parseFloat(s); raw=sec>=1?`${sec}s`:`1/${Math.round(1/sec)}s`; }
+  const i = sec>=1?'Exposição longa':sec>=1/30?'Risco de tremido':sec>=1/60?'Mínimo tremido':sec>=1/125?'Movimento nítido':sec>=1/500?'Ação congelada':'Ultra-rápida';
+  return {raw,interp:i};
+}
+function interpISO(iso) {
+  if (!iso) return {raw:'—',interp:'Sem dados'};
+  const v = parseInt(iso);
+  const i = v<=100?'Qualidade máxima':v<=400?'Ruído mínimo':v<=800?'Leve granulado':v<=1600?'Granulado visível':v<=3200?'Ruído digital':'Ruído intenso';
+  return {raw:`ISO ${v}`,interp:i};
+}
+function interpFocal(mm) {
+  if (!mm) return {raw:'—',interp:'Sem dados'};
+  const v = parseFloat(mm);
+  const i = v<=18?'Ultra-angular':v<=28?'Grande angular':v<=35?'Normal-angular':v<=50?'Visão humana':v<=85?'Ideal retratos':v<=135?'Teleobjetiva leve':'Super-telefoto';
+  return {raw:`${v}mm`,interp:i};
+}
+function generateTechnique(exif) {
+  const p=[];
+  if(exif.aperture){const f=parseFloat(exif.aperture);if(f<=2.8)p.push('Abertura larga criando bokeh — o sujeito se destaca do fundo.');else if(f<=5.6)p.push('Abertura média — equilíbrio entre profundidade e luz.');else p.push('Abertura fechada — toda a cena em foco, ideal para paisagens.');}
+  if(exif.iso){const v=parseInt(exif.iso);if(v>1600)p.push('ISO alto indica ambiente escuro.');else if(v<=200)p.push('ISO baixo — máxima qualidade de imagem.');}
+  if(exif.focalLength){const m=parseFloat(exif.focalLength);if(m<=28)p.push('Lente grande angular — cuidado com distorções nas bordas.');else if(m>=85)p.push('Focal longa comprime a perspectiva — ótimo para retratos.');}
+  return p.length?p.join(' '):null;
+}
+function detectType(exif) {
+  const f=exif.aperture?parseFloat(exif.aperture):null;
+  const iso=exif.iso?parseInt(exif.iso):null;
+  const mm=exif.focalLength?parseFloat(exif.focalLength):null;
+  if(f&&f<=2.8&&mm&&mm>=50&&mm<=135)return'Retrato';
+  if(f&&f>=8&&mm&&mm<=35)return'Paisagem';
+  if(iso&&iso>=1600)return'Baixa luz';
+  if(f&&f<=2.8)return'Bokeh';
+  if(mm&&mm>=200)return'Telefoto';
+  return'Geral';
+}
+function formatDate(iso) {
+  if(!iso)return'';
+  try{return new Date(iso).toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});}catch{return'';}
+}
+function formatBytes(b){if(b<1024)return b+' B';if(b<1048576)return(b/1024).toFixed(1)+' KB';return(b/1048576).toFixed(1)+' MB';}
+
+// ═══════════════════════════
+//  REAL FILE PROCESSING
+// ═══════════════════════════
+document.getElementById('fileInput').addEventListener('change', e => {
+  processFiles(Array.from(e.target.files));
+  e.target.value = '';
+});
+
+// DRAG & DROP
+const appEl = document.getElementById('app');
+let dragEl = null;
+
+function getOrCreateDragOverlay() {
+  let el = document.getElementById('dragOverlay');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'dragOverlay';
+    el.className = 'drag-overlay';
+    el.innerHTML = '<div class="drag-overlay-inner"><div class="drag-overlay-icon">📷</div><div class="drag-overlay-text">Solte para adicionar</div></div>';
+    document.body.appendChild(el);
+  }
+  return el;
+}
+
+let dragCounter = 0;
+document.addEventListener('dragenter', e => {
+  e.preventDefault(); dragCounter++;
+  getOrCreateDragOverlay().classList.add('active');
+});
+document.addEventListener('dragleave', e => {
+  dragCounter--;
+  if (dragCounter <= 0) { dragCounter=0; getOrCreateDragOverlay().classList.remove('active'); }
+});
+document.addEventListener('dragover', e => e.preventDefault());
+document.addEventListener('drop', e => {
+  e.preventDefault(); dragCounter=0;
+  getOrCreateDragOverlay().classList.remove('active');
+  const files = Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith('image/')||f.name.match(/\.(heic|heif|raf|cr2|nef|arw|rw2|dng)$/i));
+  if (files.length) processFiles(files);
+});
+
+function showProgress() { document.getElementById('progressBar').classList.add('on'); }
+function hideProgress() { setTimeout(()=>document.getElementById('progressBar').classList.remove('on'), 500); }
+
+async function processFiles(files) {
+  showProgress();
+  // Switch to home tab
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('screen-home').classList.add('active');
+  document.querySelector('.tab[onclick*="home"]').classList.add('active');
+
+  for (const file of files) {
+    addSkeleton();
+    const uri = await toDataURL(file);
+    let rawExif = {};
+    try {
+      rawExif = await window.exifr.parse(file, {
+        tiff:true, ifd0:true, exif:true, gps:true,
+        translateKeys:true, translateValues:true, reviveValues:true,
+        sanitize:true, mergeOutput:true,
+      }) || {};
+    } catch(e) { console.warn('EXIF failed:', e); }
+
+    const exif = {
+      aperture:      rawExif.FNumber ?? rawExif.ApertureValue,
+      shutterSpeed:  rawExif.ExposureTime ?? rawExif.ShutterSpeedValue,
+      iso:           rawExif.ISO ?? rawExif.ISOSpeedRatings,
+      focalLength:   rawExif.FocalLength,
+      focalLength35: rawExif.FocalLengthIn35mmFilm,
+      make:          rawExif.Make,
+      model:         rawExif.Model,
+      lens:          rawExif.LensModel,
+      flash:         rawExif.Flash,
+      whiteBalance:  rawExif.WhiteBalance,
+      exposureMode:  rawExif.ExposureMode,
+      exposureComp:  rawExif.ExposureCompensation,
+      meteringMode:  rawExif.MeteringMode,
+      software:      rawExif.Software,
+      width:         rawExif.ImageWidth ?? rawExif.ExifImageWidth,
+      height:        rawExif.ImageHeight ?? rawExif.ExifImageHeight,
+      lat:           rawExif.latitude,
+      lon:           rawExif.longitude,
+    };
+
+    const rawTs = rawExif.DateTimeOriginal ?? rawExif.CreateDate ?? rawExif.DateTime;
+    const timestamp = rawTs instanceof Date ? rawTs.toISOString() : rawTs ? new Date(rawTs).toISOString() : new Date().toISOString();
+    const photoType = detectType(exif);
+
+    const photo = {
+      id: 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+      uri,
+      timestamp,
+      exif,
+      photoType,
+      technique: generateTechnique(exif),
+      favorite: false,
+      note: '',
+      filename: file.name,
+      fileSize: file.size,
+    };
+    photos.unshift(photo);
+    removeSkeleton();
+    savePhotos();
+    renderFeed();
+    await delay(60);
+  }
+
+  hideProgress();
+  showToast(`${files.length} foto${files.length!==1?'s':''} adicionada${files.length!==1?'s':''}!`);
+}
+
+function toDataURL(file) {
+  return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=e=>res(e.target.result); r.onerror=rej; r.readAsDataURL(file); });
+}
+function delay(ms) { return new Promise(r=>setTimeout(r,ms)); }
+
+// ═══════════════════════════
+//  SKELETON
+// ═══════════════════════════
+function addSkeleton() {
+  const sk = document.createElement('div');
+  sk.className = 'skeleton-card'; sk.id = 'skel';
+  sk.innerHTML = '<div class="skel skel-img"></div><div class="skel-body"><div class="skel skel-line skel-w80"></div><div class="skel skel-line skel-w55"></div><div class="skel skel-line skel-w35"></div></div>';
+  const feed = document.getElementById('feed-list');
+  if (feed) feed.prepend(sk);
+}
+function removeSkeleton() { document.getElementById('skel')?.remove(); }
+
+// ═══════════════════════════
+//  RENDER FEED (home)
+// ═══════════════════════════
+function renderFeed() {
+  const list = document.getElementById('feed-list');
+  document.getElementById('home-count').textContent = photos.length > 0 ? photos.length + '' : '';
+  if (!photos.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">◎</div><div class="empty-title">Sem fotos ainda</div><div class="empty-text">Vá para Capture e adicione sua primeira foto. Os dados EXIF reais serão extraídos automaticamente.</div></div>`;
+    return;
+  }
+  list.innerHTML = photos.map((p,i) => {
+    const ap = interpAperture(p.exif?.aperture);
+    const sh = interpShutter(p.exif?.shutterSpeed);
+    return `<div class="photo-card" style="animation-delay:${(i*0.05).toFixed(2)}s" onclick="openDetail('${p.id}')">
+      <div class="card-photo-wrap">
+        <img class="photo-thumb" src="${p.uri}" loading="lazy" alt="">
+        ${p.favorite?'<div class="fav-badge">♥</div>':''}
+      </div>
+      <div class="exif-pills">
+        ${p.exif?.aperture?`<span class="pill gold">${ap.raw}</span>`:''}
+        ${p.exif?.iso?`<span class="pill">ISO ${p.exif.iso}</span>`:''}
+        ${p.exif?.shutterSpeed?`<span class="pill">${sh.raw}</span>`:''}
+        ${p.exif?.focalLength?`<span class="pill">${Math.round(parseFloat(p.exif.focalLength))}mm</span>`:''}
+        ${p.photoType?`<span class="pill type">${p.photoType}</span>`:''}
+      </div>
+      <div style="padding:0 10px 10px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:10px;color:var(--text3);font-family:var(--font-mono)">${[p.exif?.make,p.exif?.model].filter(Boolean).join(' ')||p.filename||'—'}</span>
+        <span style="font-size:10px;color:var(--text3);font-family:var(--font-mono)">${formatDate(p.timestamp).split(',')[0]||''}</span>
+      </div>
+      ${p.note?`<div class="note-row">"${p.note}"</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════
+//  RENDER LIBRARY
+// ═══════════════════════════
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderLibrary();
+}
+function renderLibrary() {
+  const grid = document.getElementById('library-grid');
+  const filtered = currentFilter==='fav'?photos.filter(p=>p.favorite):photos;
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">▦</div><div class="empty-title">${currentFilter==='fav'?'Sem favoritos':'Biblioteca vazia'}</div><div class="empty-text">${currentFilter==='fav'?'Favorite fotos no detalhe.':'Adicione fotos para preencher.'}</div></div>`;
+    return;
+  }
+  grid.innerHTML = filtered.map(p=>`<div class="grid-item" onclick="openDetail('${p.id}')">
+    <img src="${p.uri}" loading="lazy" alt="">
+    ${p.favorite?'<div class="grid-fav">♥</div>':''}
+    ${p.exif?.aperture?`<div class="grid-exif">f/${parseFloat(p.exif.aperture)}</div>`:''}
+  </div>`).join('');
+}
+
+// ═══════════════════════════
+//  RENDER INSIGHTS
+// ═══════════════════════════
+function renderInsights() {
+  const content = document.getElementById('insights-content');
+  if (!photos.length) {
+    content.innerHTML = `<div class="empty-state"><div class="empty-icon">↗</div><div class="empty-title">Sem dados ainda</div><div class="empty-text">Adicione fotos para ver os insights aqui.</div></div>`;
+    return;
+  }
+  const total=photos.length, favs=photos.filter(p=>p.favorite).length, withExif=photos.filter(p=>p.exif?.aperture).length;
+  const isoVals=photos.filter(p=>p.exif?.iso).map(p=>parseInt(p.exif.iso));
+  const avgISO=isoVals.length?Math.round(isoVals.reduce((a,b)=>a+b,0)/isoVals.length):null;
+  const aperMap={};photos.forEach(p=>{if(p.exif?.aperture){const k=`f/${parseFloat(p.exif.aperture)}`;aperMap[k]=(aperMap[k]||0)+1;}});
+  const aperSorted=Object.entries(aperMap).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([val,cnt])=>({val,pct:Math.round(cnt/total*100)}));
+  const focalMap={};photos.forEach(p=>{if(p.exif?.focalLength){const k=`${Math.round(parseFloat(p.exif.focalLength))}mm`;focalMap[k]=(focalMap[k]||0)+1;}});
+  const topFocal=Object.entries(focalMap).sort((a,b)=>b[1]-a[1])[0]?.[0];
+  const typeMap={};photos.forEach(p=>{if(p.photoType)typeMap[p.photoType]=(typeMap[p.photoType]||0)+1;});
+  const topType=Object.entries(typeMap).sort((a,b)=>b[1]-a[1])[0]?.[0];
+  const lowLightPct=isoVals.length?Math.round(isoVals.filter(v=>v>=1600).length/total*100):0;
+  const wideApPct=Math.round(photos.filter(p=>p.exif?.aperture&&parseFloat(p.exif.aperture)<2.8).length/total*100);
+  const style=wideApPct>50?'Bokeh & Retratos':lowLightPct>30?'Fotografia Noturna':topType||'Fotografia Geral';
+  const typeEmoji={Retrato:'👤',Paisagem:'🏔',Bokeh:'◎','Baixa luz':'🌙',Telefoto:'🔭',Geral:'📷'};
+  content.innerHTML=`
+    <div class="ins-hero"><div class="ins-section-label">SEU ESTILO DOMINANTE</div><div class="ins-hero-val">${style}</div>${wideApPct>0?`<div class="ins-hero-sub">${wideApPct}% das fotos com abertura abaixo de f/2.8</div>`:''}</div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-card-title">TOTAL</div><div class="stat-card-val">${total}</div><div class="stat-card-sub">fotos</div></div>
+      <div class="stat-card"><div class="stat-card-title">FAVORITAS</div><div class="stat-card-val gold">${favs}</div><div class="stat-card-sub">fotos</div></div>
+      <div class="stat-card"><div class="stat-card-title">COM EXIF</div><div class="stat-card-val">${withExif}</div><div class="stat-card-sub">registros</div></div>
+    </div>
+    ${aperSorted.length?`<div class="ins-card"><div class="ins-section-label">ABERTURAS MAIS USADAS</div>${aperSorted.map(a=>`<div class="bar-row"><div class="bar-label">${a.val}</div><div class="bar-bg"><div class="bar-fill" style="width:${a.pct}%"></div></div><div class="bar-pct">${a.pct}%</div></div>`).join('')}</div>`:''}
+    <div class="two-col">
+      ${avgISO?`<div class="ins-card"><div class="ins-section-label">ISO MÉDIO</div><div class="big-num">${avgISO}</div><div class="big-num-sub">${avgISO<=400?'Ruído controlado':avgISO<=1600?'Granulado leve':'Ruído alto'}</div></div>`:''}
+      ${topFocal?`<div class="ins-card"><div class="ins-section-label">LENTE FAVORITA</div><div class="big-num">${topFocal}</div><div class="big-num-sub">${parseInt(topFocal)<=28?'Grande angular':parseInt(topFocal)<=50?'Focal padrão':'Teleobjetiva'}</div></div>`:''}
+    </div>
+    <div class="ins-card"><div class="ins-section-label">CONDIÇÕES DE LUZ</div>
+      <div class="bar-row"><div class="bar-label">Boa luz</div><div class="bar-bg"><div class="bar-fill" style="width:${100-lowLightPct}%"></div></div><div class="bar-pct">${100-lowLightPct}%</div></div>
+      <div class="bar-row"><div class="bar-label">Baixa luz</div><div class="bar-bg"><div class="bar-fill" style="width:${lowLightPct}%;background:var(--blue)"></div></div><div class="bar-pct">${lowLightPct}%</div></div>
+    </div>
+    ${topType?`<div class="ins-card"><div class="ins-section-label">TIPO MAIS FOTOGRAFADO</div><div style="display:flex;align-items:center;gap:12px"><div style="font-size:32px">${typeEmoji[topType]||'📷'}</div><div><div style="font-size:18px;font-weight:700;color:var(--text);font-family:var(--font-display)">${topType}</div><div style="font-size:11px;color:var(--text2);margin-top:2px">categoria dominante</div></div></div></div>`:''}
+  `;
+}
+
+// ═══════════════════════════
+//  CAPTURE TAB
+// ═══════════════════════════
+function selectType(btn) {
+  document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedType = btn.dataset.type;
+}
+
+// ═══════════════════════════
+//  DETAIL OVERLAY
+// ═══════════════════════════
+function openDetail(id) {
+  const photo = photos.find(p=>p.id===id);
+  if (!photo) return;
+  currentPhotoId = id;
+
+  document.getElementById('detail-img').src = photo.uri;
+  document.getElementById('detail-date').textContent = formatDate(photo.timestamp);
+  document.getElementById('detail-camera').textContent = [photo.exif?.make,photo.exif?.model].filter(Boolean).join(' ');
+  document.getElementById('detail-type-badge').textContent = photo.photoType?.toUpperCase()||'';
+  updateFavUI(photo.favorite);
+  buildExifSection(photo);
+
+  // Note: set value AFTER buildExifSection (which rebuilds inner HTML)
+  document.getElementById('detail-note').value = photo.note||'';
+
+  const screen = document.getElementById('detail-screen');
+  screen.style.display='flex';
+  requestAnimationFrame(()=>{
+    screen.classList.add('open');
+    setTimeout(()=>animateExif(), 320);
+  });
+}
+
+function buildExifSection(photo) {
+  const exif = photo.exif||{};
+  const ap=interpAperture(exif.aperture), sh=interpShutter(exif.shutterSpeed);
+  const is=interpISO(exif.iso), fc=interpFocal(exif.focalLength);
+
+  // Main 4 EXIF cards (start hidden — animated in)
+  document.getElementById('detail-exif-grid').innerHTML = `
+    <div class="exif-card"><div class="exif-card-label">Abertura</div><div class="exif-card-val gold">${ap.raw}</div><div class="exif-card-interp">${ap.interp}</div></div>
+    <div class="exif-card"><div class="exif-card-label">Velocidade</div><div class="exif-card-val">${sh.raw}</div><div class="exif-card-interp">${sh.interp}</div></div>
+    <div class="exif-card"><div class="exif-card-label">ISO</div><div class="exif-card-val">${is.raw}</div><div class="exif-card-interp">${is.interp}</div></div>
+    <div class="exif-card"><div class="exif-card-label">Focal</div><div class="exif-card-val">${fc.raw}</div><div class="exif-card-interp">${fc.interp}</div></div>
+  `;
+
+  // Extra metadata rows
+  const extras=[];
+  if(exif.lens)          extras.push(['Lente',          exif.lens]);
+  if(exif.focalLength35) extras.push(['Equiv. 35mm',    exif.focalLength35+'mm']);
+  if(exif.whiteBalance)  extras.push(['Bal. branco',    exif.whiteBalance]);
+  if(exif.exposureMode)  extras.push(['Modo expo.',     exif.exposureMode]);
+  if(exif.exposureComp!=null) extras.push(['Comp. expo.',    (exif.exposureComp>=0?'+':'')+exif.exposureComp+' EV']);
+  if(exif.meteringMode)  extras.push(['Medição',        exif.meteringMode]);
+  if(exif.flash!=null)   extras.push(['Flash',          (exif.flash&1)?'Disparado':'Não usado']);
+  if(exif.software)      extras.push(['Software',       exif.software]);
+  if(exif.width&&exif.height) extras.push(['Resolução', `${exif.width} × ${exif.height}`]);
+  if(photo.fileSize)     extras.push(['Arquivo',        formatBytes(photo.fileSize)]);
+  if(photo.filename)     extras.push(['Nome',           photo.filename]);
+
+  const techWrap = document.getElementById('detail-technique-wrap');
+  let techHtml = '';
+  if (extras.length) {
+    techHtml += `<div class="section-title" style="margin-top:14px">METADADOS</div><div class="exif-extra-list">${extras.map(([k,v])=>`<div class="exif-extra-item"><span class="exif-extra-key">${k}</span><span class="exif-extra-val">${v}</span></div>`).join('')}</div>`;
+  }
+  if (exif.lat && exif.lon) {
+    techHtml += `<a class="gps-card-link" href="https://maps.apple.com/?q=${exif.lat},${exif.lon}" target="_blank"><div class="gps-icon">📍</div><div class="gps-text"><div class="gps-coords">${exif.lat.toFixed(5)}, ${exif.lon.toFixed(5)}</div><div class="gps-hint">Toque para ver no mapa</div></div><div style="font-size:13px;color:var(--text3)">↗</div></a>`;
+  }
+  if (photo.technique) {
+    techHtml += `<div class="section-title" style="margin-top:14px">O QUE VOCÊ FEZ</div><div class="technique-card"><div class="technique-title">Análise técnica</div><div class="technique-text">${photo.technique}</div></div>`;
+  }
+  techWrap.innerHTML = techHtml;
+}
+
+function animateExif() {
+  document.querySelectorAll('.exif-card').forEach((el,i)=>{
+    setTimeout(()=>el.classList.add('shown'), i*90);
+  });
+  document.querySelectorAll('.exif-extra-item').forEach((el,i)=>{
+    setTimeout(()=>el.classList.add('shown'), 380+i*55);
+  });
+  document.querySelectorAll('.gps-card-link,.technique-card').forEach((el,i)=>{
+    setTimeout(()=>el.classList.add('shown'), 520+i*80);
+  });
+}
+
+function closeDetail() {
+  const screen = document.getElementById('detail-screen');
+  screen.classList.remove('open');
+  setTimeout(()=>{
+    screen.style.display='none';
+    // Reset animation state
+    document.querySelectorAll('.exif-card,.exif-extra-item,.gps-card-link,.technique-card').forEach(el=>el.classList.remove('shown'));
+    renderFeed(); renderLibrary();
+  }, 360);
+  currentPhotoId = null;
+}
+
+function updateFavUI(fav) {
+  document.getElementById('detail-fav-btn').textContent = fav?'♥':'♡';
+  const a=document.getElementById('detail-fav-action');
+  if(a){a.textContent=fav?'♥ Favoritado':'♡ Favoritar';a.className='action-btn'+(fav?' fav-active':'');}
+}
+function toggleFav() {
+  const p=photos.find(p=>p.id===currentPhotoId); if(!p)return;
+  p.favorite=!p.favorite; savePhotos(); updateFavUI(p.favorite);
+  showToast(p.favorite?'Adicionado aos favoritos':'Removido dos favoritos');
+}
+function deleteCurrentPhoto() {
+  if(!confirm('Excluir esta foto? Ação irreversível.'))return;
+  photos=photos.filter(p=>p.id!==currentPhotoId); savePhotos();
+  closeDetail(); showToast('Foto excluída');
+}
+
+// ═══════════════════════════
+//  TOAST
+// ═══════════════════════════
+let toastT;
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+
+// Global note auto-save (no listener accumulation)
+document.getElementById('detail-note').addEventListener('input', function(){
+  const p = photos.find(p => p.id === currentPhotoId);
+  if (p) { p.note = this.value; savePhotos(); }
+});
+
+// Swipe down to close detail
+(function(){
+  let _y0 = 0;
+  const ov = document.getElementById('detail-screen');
+  ov.addEventListener('touchstart', e => { _y0 = e.touches[0].clientY; }, { passive: true });
+  ov.addEventListener('touchend', e => { if (e.changedTouches[0].clientY - _y0 > 80) closeDetail(); }, { passive: true });
+})();
+
+// ═══════════════════════════
+//  INIT
+// ═══════════════════════════
+renderFeed();
+</script>
+
+</body>
+</html>
