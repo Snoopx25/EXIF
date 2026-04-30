@@ -7,7 +7,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="EXIF">
-<link rel="manifest" href="data:application/json,{%22name%22:%22EXIF%22,%22short_name%22:%22EXIF%22,%22display%22:%22standalone%22,%22background_color%22:%22%23060608%22,%22theme_color%22:%22%23060608%22}">
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22EXIF%20%E2%80%94%20Di%C3%A1rio%20Visual%22%2C%22short_name%22%3A%22EXIF%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23060608%22%2C%22theme_color%22%3A%22%23060608%22%2C%22orientation%22%3A%22portrait%22%2C%22start_url%22%3A%22.%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAAIAAAACAAQMAAAD58POIAAAABlBMVEXIqWoGBggSCbk0AAAAOUlEQVRIx2NgGAWjgB7gPxQYBaNgFIyCUTAKRsEoGAWjYBSMglEwCkbBKBgFo2AUjIJRQAcAAA%2B6Ap%2FULxp2AAAAAElFTkSuQmCC%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
+<meta name="apple-touch-fullscreen" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <title>EXIF — Diário Visual</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <script src="https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/lite.umd.js"></script>
@@ -67,7 +69,7 @@ input,textarea,button,select{font-family:var(--font-body)}
 .theme-toggle:active{opacity:0.7;transform:scale(0.9)}
 
 /* ══ TABS ══ */
-.tab-bar{display:flex;border-top:0.5px solid var(--border);background:rgba(6,6,8,0.96);backdrop-filter:blur(24px);flex-shrink:0;padding:8px 0 max(8px,env(safe-area-inset-bottom))}
+.tab-bar{display:flex;border-top:0.5px solid var(--border);background:rgba(6,6,8,0.96);backdrop-filter:blur(24px);flex-shrink:0;padding:6px 0 max(6px,env(safe-area-inset-bottom))}
 body.light .tab-bar{background:rgba(244,244,240,0.96)}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0;cursor:pointer}
 .tab svg{width:22px;height:22px;stroke:var(--text3);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;transition:stroke 0.2s}
@@ -173,13 +175,33 @@ body.light .tab-bar{background:rgba(244,244,240,0.96)}
 .detail-camera{font-size:12px;color:var(--text2);margin-bottom:3px}
 .section-title{font-size:9px;font-weight:700;color:var(--text3);letter-spacing:1.2px;margin-bottom:8px;margin-top:18px;font-family:var(--font-mono)}
 .exif-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.exif-card{background:var(--bg2);border-radius:var(--r-sm);border:0.5px solid var(--border);padding:12px;opacity:0;transform:translateY(10px);transition:opacity 0.35s ease,transform 0.35s ease}
+.exif-card{background:var(--bg2);border-radius:var(--r-sm);border:0.5px solid var(--border);padding:12px;opacity:0;transform:translateY(14px);transition:opacity 0.45s cubic-bezier(0.22,1,0.36,1),transform 0.45s cubic-bezier(0.22,1,0.36,1);will-change:opacity,transform}
 .exif-card.shown{opacity:1;transform:translateY(0)}
+.exif-grid .exif-card:nth-child(1){transition-delay:0ms}
+.exif-grid .exif-card:nth-child(2){transition-delay:80ms}
+.exif-grid .exif-card:nth-child(3){transition-delay:160ms}
+.exif-grid .exif-card:nth-child(4){transition-delay:240ms}
 .exif-card-label{font-size:10px;color:var(--text2);margin-bottom:4px;font-weight:500;letter-spacing:0.3px}
-.exif-card-val{font-size:18px;font-weight:700;color:var(--text);font-family:var(--font-mono);margin-bottom:3px}
+.exif-card-val{font-size:18px;font-weight:700;color:var(--text);font-family:var(--font-mono);margin-bottom:5px}
 .exif-card-val.gold{color:var(--gold)}
-.exif-card-interp{font-size:10px;color:var(--gold);line-height:1.4}
-.technique-card{background:var(--gold-dim);border-radius:var(--r-sm);border:0.5px solid var(--gold-border);padding:14px;opacity:0;transform:translateY(6px);transition:opacity 0.35s ease,transform 0.35s ease}
+.exif-card-emoji{font-size:16px;margin-bottom:3px;display:block;line-height:1}
+.exif-card-interp{font-size:11px;color:var(--gold);line-height:1.4;font-weight:500}
+
+/* ══ COMO FOI FEITA — painel expandível ══ */
+.how-btn{width:100%;background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--r-sm);padding:14px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:12px;transition:all 0.2s;font-family:var(--font-body)}
+.how-btn:active{opacity:0.7;transform:scale(0.99)}
+.how-btn-icon{width:32px;height:32px;border-radius:50%;background:var(--gold-dim);border:0.5px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.how-btn-text{flex:1;text-align:left}
+.how-btn-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
+.how-btn-sub{font-size:11px;color:var(--text3)}
+.how-btn-arrow{font-size:12px;color:var(--text3);transition:transform 0.3s}
+.how-btn.open .how-btn-arrow{transform:rotate(180deg)}
+.how-panel{overflow:hidden;max-height:0;transition:max-height 0.4s cubic-bezier(0.22,1,0.36,1),opacity 0.3s ease;opacity:0;margin-bottom:0}
+.how-panel.open{max-height:600px;opacity:1;margin-bottom:12px}
+.how-panel-inner{background:var(--gold-dim);border:0.5px solid var(--gold-border);border-radius:var(--r-sm);padding:16px;font-size:13px;color:var(--text2);line-height:1.9}
+.how-panel-inner strong{color:var(--text);font-weight:600}
+.how-panel-title{font-size:10px;font-weight:700;color:var(--gold);letter-spacing:1.2px;margin-bottom:12px;font-family:var(--font-mono)}
+.technique-card{background:var(--gold-dim);border-radius:var(--r-sm);border:0.5px solid var(--gold-border);padding:14px;opacity:0;transform:translateY(10px);transition:opacity 0.45s cubic-bezier(0.22,1,0.36,1),transform 0.45s cubic-bezier(0.22,1,0.36,1);will-change:opacity,transform}
 .technique-card.shown{opacity:1;transform:translateY(0)}
 .technique-title{font-size:11px;color:var(--gold);font-weight:600;margin-bottom:6px;font-family:var(--font-mono)}
 .technique-text{font-size:13px;color:var(--text2);line-height:1.6}
@@ -193,7 +215,7 @@ body.light .tab-bar{background:rgba(244,244,240,0.96)}
 .action-btn.danger{color:rgba(224,90,90,0.7);flex:0 0 auto;padding:12px 16px}
 .action-btn.edit-btn{color:var(--blue);border-color:rgba(90,175,224,0.25);flex:0 0 auto;padding:12px 16px}
 .exif-extra-list{margin-bottom:14px}
-.exif-extra-item{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:0.5px solid var(--border);opacity:0;transform:translateY(6px);transition:opacity 0.3s ease,transform 0.3s ease}
+.exif-extra-item{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:0.5px solid var(--border);opacity:0;transform:translateY(8px);transition:opacity 0.38s cubic-bezier(0.22,1,0.36,1),transform 0.38s cubic-bezier(0.22,1,0.36,1);will-change:opacity,transform}
 .exif-extra-item.shown{opacity:1;transform:translateY(0)}
 .exif-extra-item:last-child{border-bottom:none}
 .exif-extra-key{font-family:var(--font-mono);font-size:10px;color:var(--text3)}
@@ -213,8 +235,11 @@ body.light .tab-bar{background:rgba(244,244,240,0.96)}
 .no-exif-cta:active{opacity:0.7}
 
 /* ══ SHARE CARD (export) ══ */
-.share-btn{background:rgba(90,175,224,0.12);border:0.5px solid rgba(90,175,224,0.28);border-radius:var(--r-sm);padding:11px;font-size:13px;color:var(--blue);cursor:pointer;text-align:center;font-family:var(--font-body);font-weight:500;transition:all 0.2s;margin-top:8px}
-.share-btn:active{opacity:0.7}
+.share-btn{background:var(--gold-dim);border:0.5px solid var(--gold-border);border-radius:var(--r-sm);padding:13px;font-size:13px;color:var(--gold);cursor:pointer;text-align:center;font-family:var(--font-body);font-weight:600;transition:all 0.2s;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:0.2px}
+.share-btn:active{opacity:0.7;transform:scale(0.98)}
+.share-btn.loading{opacity:0.6;pointer-events:none}
+.share-btn-icon{font-size:15px;transition:transform 0.3s}
+.share-btn:hover .share-btn-icon{transform:translateY(-2px)}
 
 /* ══ COMPARE MODAL ══ */
 .cmp-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:400;display:none;flex-direction:column;backdrop-filter:blur(8px)}
@@ -305,6 +330,152 @@ select.form-input{cursor:pointer}
 .histogram-title{font-size:9px;font-weight:700;color:var(--text3);letter-spacing:1.2px;margin-bottom:8px;font-family:var(--font-mono)}
 .histogram-canvas{width:100%;height:64px;display:block;border-radius:4px}
 
+/* ══ AHA MOMENT BLOCK ══ */
+.aha-block{
+  margin:0 0 18px;
+  background:linear-gradient(135deg,rgba(200,169,106,0.13) 0%,rgba(200,169,106,0.04) 100%);
+  border:1px solid var(--gold-border);
+  border-radius:var(--r);
+  padding:18px 16px 16px;
+  position:relative;
+  overflow:hidden;
+  opacity:0;
+  transform:translateY(12px);
+  transition:opacity 0.5s cubic-bezier(0.22,1,0.36,1),transform 0.5s cubic-bezier(0.22,1,0.36,1);
+}
+.aha-block.shown{opacity:1;transform:translateY(0)}
+.aha-block::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  opacity:0.6;
+}
+.aha-eyebrow{
+  font-size:9px;font-weight:800;color:var(--gold);letter-spacing:2px;
+  font-family:var(--font-mono);margin-bottom:10px;
+  display:flex;align-items:center;gap:6px;
+}
+.aha-eyebrow::before{content:'';width:16px;height:1px;background:var(--gold);opacity:0.5}
+.aha-headline{
+  font-size:22px;font-weight:800;color:var(--text);
+  font-family:var(--font-display);letter-spacing:-0.5px;
+  line-height:1.2;margin-bottom:12px;
+}
+.aha-headline em{color:var(--gold);font-style:normal}
+.aha-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.aha-tag{
+  background:rgba(200,169,106,0.12);border:0.5px solid var(--gold-border);
+  border-radius:999px;padding:4px 10px;
+  font-size:11px;color:var(--gold);font-family:var(--font-mono);
+}
+.aha-cta{
+  background:var(--gold);border:none;border-radius:var(--r-sm);
+  padding:10px 16px;font-size:12px;font-weight:700;color:#060608;
+  cursor:pointer;font-family:var(--font-mono);letter-spacing:0.3px;
+  display:inline-flex;align-items:center;gap:6px;
+  transition:opacity 0.15s,transform 0.15s;
+  align-self:flex-start;
+}
+.aha-cta:active{opacity:0.85;transform:scale(0.98)}
+.aha-cta-icon{font-size:16px}
+.aha-cta.loading{opacity:0.6;pointer-events:none}
+
+/* ══ EXPORT PREVIEW MODAL ══ */
+.export-modal{
+  position:fixed;inset:0;background:rgba(0,0,0,0.88);
+  z-index:500;display:none;flex-direction:column;
+  align-items:center;justify-content:flex-end;
+  backdrop-filter:blur(12px);
+  padding:0;
+}
+.export-modal.open{display:flex}
+.export-sheet{
+  background:var(--bg2);border-radius:24px 24px 0 0;
+  width:100%;max-width:430px;max-height:92vh;
+  display:flex;flex-direction:column;
+  transform:translateY(100%);
+  transition:transform 0.38s cubic-bezier(0.32,0.72,0,1);
+  overflow:hidden;
+}
+.export-modal.open .export-sheet{transform:translateY(0)}
+.export-handle{width:36px;height:4px;background:var(--bg5);border-radius:2px;margin:14px auto 0;flex-shrink:0}
+.export-header{display:flex;justify-content:space-between;align-items:center;padding:14px 20px 10px;flex-shrink:0}
+.export-title{font-size:18px;font-weight:800;color:var(--text);font-family:var(--font-display);letter-spacing:-0.5px}
+.export-close{width:32px;height:32px;border-radius:50%;background:var(--bg3);border:none;color:var(--text2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.export-preview{flex:1;overflow-y:auto;padding:0 16px;scrollbar-width:none}
+.export-preview::-webkit-scrollbar{display:none}
+.export-canvas-wrap{
+  border-radius:var(--r);overflow:hidden;margin-bottom:12px;
+  box-shadow:0 12px 48px rgba(0,0,0,0.5);
+  background:var(--bg3);
+}
+.export-canvas-wrap canvas{width:100%;height:auto;display:block}
+.export-actions{display:flex;gap:8px;padding:10px 16px max(14px,env(safe-area-inset-bottom));flex-shrink:0}
+.export-dl-btn{
+  flex:1;background:var(--gold);border:none;border-radius:var(--r-sm);
+  padding:11px 14px;font-size:13px;font-weight:700;color:#060608;
+  cursor:pointer;font-family:var(--font-mono);
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.export-dl-btn:active{opacity:0.85}
+.export-share-btn{
+  background:var(--bg3);border:0.5px solid var(--border2);border-radius:var(--r-sm);
+  padding:11px 14px;font-size:12px;color:var(--text2);cursor:pointer;
+  font-family:var(--font-mono);font-weight:500;
+  display:flex;align-items:center;gap:5px;
+}
+
+/* ══ DETAIL ACTIONS REDESIGN ══ */
+.detail-actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.action-btn{
+  flex:1;min-width:0;background:var(--bg2);border-radius:var(--r-sm);
+  border:0.5px solid var(--border);padding:13px 10px;
+  font-size:12px;color:var(--text2);font-weight:600;
+  cursor:pointer;text-align:center;transition:all 0.2s;
+  font-family:var(--font-body);white-space:nowrap;
+}
+.action-btn:active{opacity:0.7;transform:scale(0.97)}
+.action-btn.fav-active{border-color:var(--gold-border);background:var(--gold-dim);color:var(--gold)}
+.action-btn.danger{color:rgba(224,90,90,0.8);border-color:rgba(224,90,90,0.2)}
+.action-btn.edit-btn{color:var(--blue);border-color:rgba(90,175,224,0.25)}
+.action-btn.ref-btn{color:var(--gold);border-color:var(--gold-border);background:var(--gold-dim)}
+.action-btn.ref-btn.ref-active{background:var(--gold);color:#060608;border-color:var(--gold)}
+
+/* ══ REFERENCES SCREEN ══ */
+.ref-header{padding:16px 16px 8px;flex-shrink:0}
+.ref-hero{background:linear-gradient(135deg,var(--gold-dim),rgba(200,169,106,0.05));border:0.5px solid var(--gold-border);border-radius:var(--r);padding:16px;margin:0 16px 16px;flex-shrink:0}
+.ref-hero-title{font-size:11px;font-weight:700;color:var(--gold);letter-spacing:1.5px;font-family:var(--font-mono);margin-bottom:4px}
+.ref-hero-sub{font-size:12px;color:var(--text2);line-height:1.5}
+.ref-grid{padding:0 16px 24px;display:flex;flex-direction:column;gap:14px;flex:1;overflow-y:auto;scrollbar-width:none}
+.ref-grid::-webkit-scrollbar{display:none}
+.ref-card{background:var(--bg2);border-radius:var(--r);border:0.5px solid var(--gold-border);overflow:hidden;cursor:pointer;transition:transform 0.15s,opacity 0.15s;animation:fadeIn 0.3s ease both;position:relative}
+.ref-card:active{transform:scale(0.98);opacity:0.9}
+.ref-card-row{display:flex;gap:0;align-items:stretch}
+.ref-card-img{width:110px;height:110px;object-fit:cover;flex-shrink:0;display:block}
+.ref-card-info{flex:1;padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.ref-card-label{font-size:8px;font-weight:700;color:var(--gold);letter-spacing:1.5px;font-family:var(--font-mono)}
+.ref-card-camera{font-size:12px;font-weight:600;color:var(--text);font-family:var(--font-display);line-height:1.2}
+.ref-card-pills{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.ref-card-note{font-size:11px;color:var(--text3);font-style:italic;padding:8px 12px;border-top:0.5px solid var(--border)}
+.ref-badge{position:absolute;top:8px;right:8px;background:var(--gold);color:#060608;font-size:8px;font-weight:800;font-family:var(--font-mono);letter-spacing:1px;padding:3px 6px;border-radius:4px}
+.ref-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;gap:10px;text-align:center}
+.ref-empty-icon{font-size:40px;opacity:0.35}
+.ref-empty-title{font-size:17px;font-weight:600;color:var(--text2);font-family:var(--font-display)}
+.ref-empty-sub{font-size:13px;color:var(--text3);line-height:1.6;max-width:240px}
+
+/* ══ SAVE AS REFERENCE BUTTON ══ */
+.action-btn.ref-btn{color:var(--gold);border-color:var(--gold-border);background:var(--gold-dim)}
+.action-btn.ref-btn.ref-active{background:var(--gold);color:#060608;border-color:var(--gold)}
+
+/* ══ PWA INSTALL BANNER ══ */
+.pwa-banner{position:fixed;bottom:calc(72px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(120px);background:var(--bg3);border:0.5px solid var(--gold-border);border-radius:var(--r);padding:12px 16px;display:flex;align-items:center;gap:12px;z-index:600;box-shadow:0 8px 40px rgba(0,0,0,0.4);transition:transform 0.4s cubic-bezier(0.32,0.72,0,1);max-width:360px;width:calc(100% - 32px)}
+.pwa-banner.show{transform:translateX(-50%) translateY(0)}
+.pwa-banner-icon{font-size:28px;flex-shrink:0}
+.pwa-banner-text{flex:1}
+.pwa-banner-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
+.pwa-banner-sub{font-size:11px;color:var(--text2);line-height:1.4}
+.pwa-banner-cta{background:var(--gold);color:#060608;font-size:11px;font-weight:700;padding:7px 12px;border-radius:var(--r-sm);cursor:pointer;white-space:nowrap;font-family:var(--font-body);border:none;flex-shrink:0}
+.pwa-banner-close{font-size:16px;color:var(--text3);cursor:pointer;padding:4px;flex-shrink:0}
+
 </style>
 </head>
 <body>
@@ -359,6 +530,7 @@ select.form-input{cursor:pointer}
     <div class="library-filters">
       <button class="filter-btn active" onclick="setFilter('all',this)">Todas</button>
       <button class="filter-btn" onclick="setFilter('fav',this)">♥ Favoritas</button>
+      <button class="filter-btn" onclick="setFilter('ref',this)">✦ Referências</button>
       <button class="filter-btn" onclick="setFilter('manual',this)">✎ Manual</button>
       <button class="filter-btn" onclick="setFilter('Retrato',this)">Retratos</button>
       <button class="filter-btn" onclick="setFilter('Paisagem',this)">Paisagens</button>
@@ -398,7 +570,7 @@ select.form-input{cursor:pointer}
       <button class="capture-btn" onclick="document.getElementById('fileInput').click()">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#060608" stroke="none"/></svg>
       </button>
-      <input type="file" accept="image/*" id="fileInput" class="capture-input" multiple>
+      <input type="file" accept="image/*" capture="environment" id="fileInput" class="capture-input">
     </div>
   </div>
 
@@ -432,7 +604,24 @@ select.form-input{cursor:pointer}
       <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
       <span>Insights</span>
     </div>
+    <div class="tab" onclick="goTab('refs',this)">
+      <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+      <span>Referências</span>
+    </div>
   </nav>
+</div>
+
+<!-- REFERENCES -->
+<div class="screen" id="screen-refs">
+  <div class="header">
+    <div class="header-title">Referências</div>
+    <div class="header-sub" id="refs-count"></div>
+  </div>
+  <div class="ref-hero">
+    <div class="ref-hero-title">✦ TÉCNICAS SALVAS</div>
+    <div class="ref-hero-sub">Fotos que você marcou como referência para estudar, inspirar ou tentar recriar.</div>
+  </div>
+  <div class="ref-grid" id="refs-grid"></div>
 </div>
 
 <!-- DETAIL OVERLAY -->
@@ -450,6 +639,35 @@ select.form-input{cursor:pointer}
       <div class="detail-date" id="detail-date"></div>
       <div class="detail-camera" id="detail-camera"></div>
       <div id="detail-sensor" style="font-size:11px;color:var(--gold);font-family:var(--font-mono);margin-top:2px;margin-bottom:12px;display:none"></div>
+
+      <!-- AHA MOMENT BLOCK -->
+      <div class="aha-block" id="aha-block" style="display:none">
+        <div class="aha-eyebrow">O SEGREDO DESSA FOTO</div>
+        <div class="aha-headline" id="aha-headline"></div>
+        <div class="aha-tags" id="aha-tags"></div>
+        <button class="aha-cta" id="aha-export-btn" onclick="openExportModal()">
+          <span class="aha-cta-icon">✦</span> Exportar EXIF Card
+        </button>
+      </div>
+
+      <!-- Botão "Ver como foi feita" -->
+      <div id="how-btn-wrap" style="display:none">
+        <button class="how-btn" id="how-btn" onclick="toggleHowPanel()">
+          <div class="how-btn-icon">✨</div>
+          <div class="how-btn-text">
+            <div class="how-btn-title">Ver como foi feita</div>
+            <div class="how-btn-sub">Entenda a foto em linguagem simples</div>
+          </div>
+          <span class="how-btn-arrow">▾</span>
+        </button>
+        <div class="how-panel" id="how-panel">
+          <div class="how-panel-inner">
+            <div class="how-panel-title">COMO ESTA FOTO FOI FEITA</div>
+            <div id="how-panel-content"></div>
+          </div>
+        </div>
+      </div>
+
       <div class="section-title">DADOS EXIF</div>
       <div id="detail-exif-area"></div>
       <div id="detail-histogram-wrap"></div>
@@ -458,9 +676,9 @@ select.form-input{cursor:pointer}
       <div class="note-area">
         <textarea class="note-textarea" id="detail-note" placeholder="O que você tentou fazer nessa foto..." rows="3"></textarea>
       </div>
-      <button class="share-btn" onclick="exportCard()">↗ Exportar cartão da foto</button>
       <div class="detail-actions">
         <div class="action-btn" id="detail-fav-action" onclick="toggleFav()">♡ Favoritar</div>
+        <div class="action-btn ref-btn" id="detail-ref-action" onclick="toggleReference()">✦ Referência</div>
         <div class="action-btn edit-btn" onclick="openForm()">✎ EXIF</div>
         <div class="action-btn danger" onclick="deletePhoto()">Excluir</div>
       </div>
@@ -616,7 +834,6 @@ select.form-input{cursor:pointer}
 </div>
 
 <!-- SHARE CANVAS (hidden) -->
-<canvas id="shareCanvas"></canvas>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -630,6 +847,70 @@ let isLight = localStorage.getItem('efix_theme') === 'light';
 let cmpSlots = [null, null];
 let cmpPicking = -1;
 const save = () => localStorage.setItem('efix_v1', JSON.stringify(photos));
+
+// ═══ PWA INSTALL BANNER ═══
+function showPWABanner(){
+  // Only on iOS Safari without standalone mode
+  const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isStandalone=window.navigator.standalone||window.matchMedia('(display-mode: standalone)').matches;
+  const dismissed=localStorage.getItem('pwa_dismissed');
+  if(isIOS&&!isStandalone&&!dismissed){
+    setTimeout(()=>document.getElementById('pwaBanner')?.classList.add('show'),3000);
+  }
+}
+function dismissPWA(){
+  document.getElementById('pwaBanner')?.classList.remove('show');
+  localStorage.setItem('pwa_dismissed','1');
+}
+showPWABanner();
+
+// ═══ TOGGLE REFERENCE ═══
+function toggleReference(){
+  const p=photos.find(p=>p.id===currentPhotoId);if(!p)return;
+  p.isReference=!p.isReference;
+  save();
+  updateRefUI(p.isReference);
+  showToast(p.isReference?'✦ Salvo como referência':'Removido das referências');
+}
+function updateRefUI(isRef){
+  const btn=document.getElementById('detail-ref-action');
+  if(!btn)return;
+  btn.textContent=isRef?'✦ Referenciado':'✦ Referência';
+  btn.className='action-btn ref-btn'+(isRef?' ref-active':'');
+}
+
+// ═══ RENDER REFERENCES ═══
+function renderRefs(){
+  const grid=document.getElementById('refs-grid');
+  const refs=photos.filter(p=>p.isReference);
+  document.getElementById('refs-count').textContent=refs.length?refs.length+'':'';
+  if(!refs.length){
+    grid.innerHTML=`<div class="ref-empty"><div class="ref-empty-icon">✦</div><div class="ref-empty-title">Nenhuma referência</div><div class="ref-empty-sub">Abra uma foto e toque em "✦ Referência" para salvá-la aqui. Use para inspiração, estudo ou técnicas que quer repetir.</div></div>`;
+    return;
+  }
+  grid.innerHTML=refs.map((p,i)=>{
+    const ap=p.exif?.aperture?`f/${parseFloat(p.exif.aperture)}`:'';
+    const iso=p.exif?.iso?`ISO ${p.exif.iso}`:'';
+    const sh=p.exif?.shutterSpeed?iSh(p.exif.shutterSpeed).r:'';
+    const mm=p.exif?.focalLength?`${Math.round(parseFloat(p.exif.focalLength))}mm`:'';
+    const cam=[p.exif?.make,p.exif?.model].filter(Boolean).join(' ')||p.filename||'—';
+    const pills=[ap,iso,sh,mm].filter(Boolean).slice(0,4);
+    return `<div class="ref-card" style="animation-delay:${(i*0.05).toFixed(2)}s" onclick="openDetail('${p.id}')">
+      <div class="ref-badge">REF</div>
+      <div class="ref-card-row">
+        <img class="ref-card-img" src="${p.uri}" loading="lazy">
+        <div class="ref-card-info">
+          <div class="ref-card-label">${p.photoType?.toUpperCase()||'GERAL'} · ${fmtDate(p.timestamp).split(',')[0]||''}</div>
+          <div class="ref-card-camera">${cam}</div>
+          <div class="ref-card-pills">
+            ${pills.map(pill=>`<span class="pill gold" style="font-size:10px">${pill}</span>`).join('')}
+          </div>
+        </div>
+      </div>
+      ${p.note?`<div class="ref-card-note">"${p.note}"</div>`:''}
+    </div>`;
+  }).join('');
+}
 
 // ═══ THEME ═══
 function applyTheme(){
@@ -664,16 +945,107 @@ function goTab(id,el) {
   if(id==='home'){renderFeed();renderPotd();}
   if(id==='library') renderLibrary();
   if(id==='insights') renderInsights();
+  if(id==='refs') renderRefs();
   // update verified badge in header
   document.getElementById('header-verified-badge').innerHTML=getVerifiedBadgeHTML();
 }
 
-// ═══ INTERPRETERS ═══
-function iAp(f){if(!f)return{r:'—',i:'Sem dados'};const v=parseFloat(f);if(isNaN(v))return{r:String(f),i:''};const i=v<=1.4?'Bokeh extremo':v<=2?'Fundo desfocado':v<=2.8?'Bokeh suave':v<=4?'Foco médio':v<=8?'Foco amplo':v<=16?'Tudo em foco':'Foco máximo';return{r:`f/${v}`,i};}
-function iSh(s){if(!s)return{r:'—',i:'Sem dados'};let sec,raw;if(typeof s==='string'&&s.includes('/')){const[n,d]=s.replace('s','').split('/');sec=+n/+d;raw=`1/${Math.round(1/sec)}s`;}else{sec=parseFloat(s);raw=sec>=1?`${sec}s`:`1/${Math.round(1/sec)}s`;}const i=sec>=1?'Exposição longa':sec>=1/30?'Risco de tremido':sec>=1/60?'Mínimo tremido':sec>=1/125?'Movimento nítido':sec>=1/500?'Ação congelada':'Ultra-rápida';return{r:raw,i};}
-function iISO(v){if(!v)return{r:'—',i:'Sem dados'};const n=parseInt(v);const i=n<=100?'Qualidade máxima':n<=400?'Ruído mínimo':n<=800?'Leve granulado':n<=1600?'Granulado visível':n<=3200?'Ruído digital':'Ruído intenso';return{r:`ISO ${n}`,i};}
-function iFoc(m){if(!m)return{r:'—',i:'Sem dados'};const v=parseFloat(m);const i=v<=18?'Ultra-angular':v<=28?'Grande angular':v<=35?'Normal-angular':v<=50?'Visão humana':v<=85?'Ideal retratos':v<=135?'Teleobjetiva leve':'Super-telefoto';return{r:`${v}mm`,i};}
+// ═══ INTERPRETERS — linguagem humana ═══
+// Cada função retorna { r: valor técnico, i: explicação humana, emoji: ícone }
+function iAp(f){
+  if(!f)return{r:'—',i:'Sem dados',emoji:'◎'};
+  const v=parseFloat(f);
+  if(isNaN(v))return{r:String(f),i:'',emoji:'◎'};
+  let i,emoji;
+  if(v<=1.4){i='Fundo quase apagado — efeito retrato forte';emoji='🌸';}
+  else if(v<=2){i='Fundo bem desfocado — sujeito em destaque';emoji='🌸';}
+  else if(v<=2.8){i='Fundo suavemente desfocado';emoji='🌿';}
+  else if(v<=4){i='Foco médio — bom para grupos';emoji='👥';}
+  else if(v<=8){i='Tudo em foco — ideal para paisagens';emoji='🏔';}
+  else if(v<=16){i='Foco total da cena';emoji='🌄';}
+  else{i='Nitidez máxima — foco em tudo';emoji='🔭';}
+  return{r:`f/${v}`,i,emoji};
+}
+function iSh(s){
+  if(!s)return{r:'—',i:'Sem dados',emoji:'⏱'};
+  let sec,raw;
+  if(typeof s==='string'&&s.includes('/')){
+    const[n,d]=s.replace('s','').split('/');sec=+n/+d;raw=`1/${Math.round(1/sec)}s`;
+  }else{
+    sec=parseFloat(s);raw=sec>=1?`${sec}s`:`1/${Math.round(1/sec)}s`;
+  }
+  let i,emoji;
+  if(sec>=2){i='Cena noturna — câmera no tripé';emoji='🌙';}
+  else if(sec>=0.5){i='Luz baixa — risco de tremido';emoji='🕯';}
+  else if(sec>=1/30){i='Foto parada — segure firme';emoji='🤳';}
+  else if(sec>=1/60){i='Movimento leve capturado';emoji='🚶';}
+  else if(sec>=1/125){i='Cena do dia a dia';emoji='☀️';}
+  else if(sec>=1/500){i='Movimento congelado';emoji='🏃';}
+  else{i='Ação ultra-rápida — nada escapa';emoji='⚡';}
+  return{r:raw,i,emoji};
+}
+function iISO(v){
+  if(!v)return{r:'—',i:'Sem dados',emoji:'◈'};
+  const n=parseInt(v);
+  let i,emoji;
+  if(n<=100){i='Luz perfeita — foto super nítida';emoji='☀️';}
+  else if(n<=400){i='Boa luz — qualidade excelente';emoji='🌤';}
+  else if(n<=800){i='Luz média — pode ter leve granulado';emoji='⛅';}
+  else if(n<=1600){i='Ambiente escuro — granulado visível';emoji='🌥';}
+  else if(n<=3200){i='Pouca luz — granulado aparente';emoji='🌙';}
+  else{i='Ambiente muito escuro — grãos na imagem';emoji='🌑';}
+  return{r:`ISO ${n}`,i,emoji};
+}
+function iFoc(m){
+  if(!m)return{r:'—',i:'Sem dados',emoji:'🔍'};
+  const v=parseFloat(m);
+  let i,emoji;
+  if(v<=18){i='Tudo na cena — espaços e arquitetura';emoji='🏛';}
+  else if(v<=28){i='Paisagem aberta — vistas amplas';emoji='🌅';}
+  else if(v<=35){i='Visão natural — parecido com nossos olhos';emoji='👁';}
+  else if(v<=50){i='Clássico e versátil — qualquer foto';emoji='📷';}
+  else if(v<=85){i='Ideal para retratos — rosto em destaque';emoji='🤳';}
+  else if(v<=135){i='Aproxima o assunto — ótimo para detalhes';emoji='🔎';}
+  else{i='Zoom forte — assunto distante em destaque';emoji='🔭';}
+  return{r:`${v}mm`,i,emoji};
+}
 function hasExif(p){const e=p.exif||{};return !!(e.aperture||e.shutterSpeed||e.iso||e.focalLength||e.make||e.model);}
+
+// ═══ GERADOR DE HISTÓRIA DA FOTO ═══
+// Combina todos os dados EXIF em uma narrativa humana para "Ver como foi feita"
+function genPhotoStory(exif){
+  const parts=[];
+  // Contexto de luz
+  const iso=exif.iso?parseInt(exif.iso):null;
+  const sh=exif.shutterSpeed;
+  let sec=null;
+  if(sh){if(typeof sh==='string'&&sh.includes('/')){const[n,d]=sh.replace('s','').split('/');sec=+n/+d;}else sec=parseFloat(sh);}
+  if(iso&&iso>=1600)parts.push('📍 Esta foto foi tirada em um ambiente com <strong>pouca luz</strong>.');
+  else if(iso&&iso<=200)parts.push('📍 Havia <strong>bastante luz</strong> na cena.');
+  else if(iso)parts.push('📍 A luz estava <strong>em condições normais</strong>.');
+  // Efeito de fundo
+  const ap=exif.aperture?parseFloat(exif.aperture):null;
+  if(ap){
+    if(ap<=2.8)parts.push(`🌸 A abertura <strong>f/${ap}</strong> criou aquele <strong>fundo desfocado</strong> (bokeh) que destaca o sujeito.`);
+    else if(ap>=8)parts.push(`🏔 A abertura <strong>f/${ap}</strong> manteve <strong>tudo em foco</strong> — da frente ao fundo.`);
+    else parts.push(`📷 A abertura <strong>f/${ap}</strong> deu um <strong>equilíbrio de foco</strong> na cena.`);
+  }
+  // Movimento
+  if(sec!==null){
+    if(sec>=0.5)parts.push(`⏱ A velocidade lenta (<strong>${iSh(sh).r}</strong>) criou um efeito de <strong>movimento ou luz traçada</strong>.`);
+    else if(sec<=1/500)parts.push(`⚡ A velocidade rápida (<strong>${iSh(sh).r}</strong>) <strong>congelou o movimento</strong> na hora certa.`);
+    else parts.push(`📸 A velocidade <strong>${iSh(sh).r}</strong> capturou a cena sem tremidos.`);
+  }
+  // Distância focal
+  const mm=exif.focalLength?parseFloat(exif.focalLength):null;
+  if(mm){
+    if(mm<=28)parts.push(`🌅 O ângulo amplo (<strong>${mm}mm</strong>) capturou <strong>mais da cena</strong> num só quadro.`);
+    else if(mm>=85)parts.push(`🔭 O zoom (<strong>${mm}mm</strong>) <strong>aproximou o assunto</strong>, comprimindo a perspectiva.`);
+  }
+  if(!parts.length)return null;
+  return parts.join('<br><br>');
+}
+
 function genTech(exif){const p=[];if(exif.aperture){const f=parseFloat(exif.aperture);if(f<=2.8)p.push('Abertura larga — bokeh pronunciado, sujeito em destaque.');else if(f<=5.6)p.push('Abertura média — equilíbrio entre profundidade e luz.');else p.push('Abertura fechada — tudo em foco, ideal para paisagens.');}if(exif.iso){const v=parseInt(exif.iso);if(v>1600)p.push('ISO alto — ambiente escuro ou velocidade alta.');else if(v<=200)p.push('ISO baixo — máxima qualidade, sem ruído.');}if(exif.focalLength){const m=parseFloat(exif.focalLength);if(m<=28)p.push('Grande angular — atenção às distorções nas bordas.');else if(m>=85)p.push('Focal longa — perspectiva comprimida, ótimo para retratos.');}if(exif.exposureMode&&exif.exposureMode!=='Automático')p.push(`Modo ${exif.exposureMode}.`);return p.length?p.join(' '):null;}
 function detectType(exif){const f=exif.aperture?parseFloat(exif.aperture):null,iso=exif.iso?parseInt(exif.iso):null,mm=exif.focalLength?parseFloat(exif.focalLength):null;if(f&&f<=2.8&&mm&&mm>=50&&mm<=135)return'Retrato';if(f&&f>=8&&mm&&mm<=35)return'Paisagem';if(iso&&iso>=1600)return'Baixa luz';if(f&&f<=2.8)return'Bokeh';if(mm&&mm>=200)return'Telefoto';return'Geral';}
 function fmtDate(iso){if(!iso)return'';try{return new Date(iso).toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});}catch{return'';}}
@@ -712,19 +1084,31 @@ async function processFiles(files) {
     const uri=await toDataURL(file);
     let raw={};
     try{raw=await window.exifr.parse(file,{tiff:true,ifd0:true,exif:true,gps:true,translateKeys:true,translateValues:true,reviveValues:true,sanitize:true,mergeOutput:true})||{};}catch(e){}
+    // Formata ExposureTime (número decimal) como fração legível ex: 0.004 → "1/250s"
+    function fmtShutter(v){
+      if(v==null)return null;
+      if(typeof v==='string')return v;
+      const n=parseFloat(v);
+      if(isNaN(n))return null;
+      if(n>=1)return n+'s';
+      const denom=Math.round(1/n);
+      return `1/${denom}s`;
+    }
     const exif={
-      aperture:raw.FNumber??raw.ApertureValue,
-      shutterSpeed:raw.ExposureTime??raw.ShutterSpeedValue,
-      iso:raw.ISO??raw.ISOSpeedRatings,
-      focalLength:raw.FocalLength,
-      focalLength35:raw.FocalLengthIn35mmFilm,
-      make:raw.Make,model:raw.Model,lens:raw.LensModel,
+      aperture:raw.FNumber??raw.ApertureValue??null,
+      shutterSpeed:fmtShutter(raw.ExposureTime??raw.ShutterSpeedValue)??null,
+      iso:raw.ISO??raw.ISOSpeedRatings??null,
+      focalLength:raw.FocalLength??null,
+      focalLength35:raw.FocalLengthIn35mmFilm??null,
+      make:(raw.Make??'').trim()||null,
+      model:(raw.Model??'').trim()||null,
+      lens:raw.LensModel??null,
       flash:raw.Flash!=null?((raw.Flash&1)?'Disparado':'Não usado'):null,
-      whiteBalance:raw.WhiteBalance,exposureMode:raw.ExposureMode,
-      exposureComp:raw.ExposureCompensation,meteringMode:raw.MeteringMode,
-      software:raw.Software,
-      width:raw.ImageWidth??raw.ExifImageWidth,height:raw.ImageHeight??raw.ExifImageHeight,
-      lat:raw.latitude,lon:raw.longitude,
+      whiteBalance:raw.WhiteBalance??null,exposureMode:raw.ExposureMode??null,
+      exposureComp:raw.ExposureCompensation??null,meteringMode:raw.MeteringMode??null,
+      software:raw.Software??null,
+      width:raw.ImageWidth??raw.ExifImageWidth??null,height:raw.ImageHeight??raw.ExifImageHeight??null,
+      lat:raw.latitude??null,lon:raw.longitude??null,
     };
     const rawTs=raw.DateTimeOriginal??raw.CreateDate??raw.DateTime;
     const timestamp=rawTs instanceof Date?rawTs.toISOString():rawTs?new Date(rawTs).toISOString():new Date().toISOString();
@@ -1024,6 +1408,7 @@ function renderFeed(){
       <div class="card-photo-wrap">
         <img class="photo-thumb" src="${p.uri}" loading="lazy" alt="">
         ${p.favorite?'<div class="fav-badge">♥</div>':''}
+        ${p.isReference?'<div style="position:absolute;top:10px;left:10px;background:var(--gold);color:#060608;font-size:8px;font-weight:800;padding:3px 7px;border-radius:4px;font-family:var(--font-mono)">✦ REF</div>':''}
       </div>
       <div class="exif-pills">
         ${p.exif?.aperture?`<span class="pill gold">${ap.r}</span>`:''}
@@ -1055,6 +1440,7 @@ function renderLibrary(){
   const q=(document.getElementById('search-input')?.value||'').toLowerCase().trim();
   let f=photos;
   if(currentFilter==='fav')f=photos.filter(p=>p.favorite);
+  else if(currentFilter==='ref')f=photos.filter(p=>p.isReference);
   else if(currentFilter==='manual')f=photos.filter(p=>p.manualExif||!p.exifDetected);
   else if(currentFilter!=='all')f=photos.filter(p=>p.photoType===currentFilter);
   // Advanced filters
@@ -1072,6 +1458,7 @@ function renderLibrary(){
   grid.innerHTML=f.map(p=>`<div class="grid-item" onclick="openDetail('${p.id}')">
     <img src="${p.uri}" loading="lazy" alt="">
     ${p.favorite?'<div class="grid-fav">♥</div>':''}
+    ${p.isReference?'<div style="position:absolute;top:5px;left:5px;background:var(--gold);color:#060608;font-size:8px;font-weight:800;padding:2px 5px;border-radius:3px;font-family:var(--font-mono)">REF</div>':''}
     ${p.exif?.aperture?`<div class="grid-exif">f/${parseFloat(p.exif.aperture)}</div>`:''}
     ${(!p.exifDetected||p.manualExif)?'<div class="grid-manual">✎</div>':''}
   </div>`).join('');
@@ -1180,6 +1567,7 @@ function openDetail(id){
   document.getElementById('detail-type-badge').textContent=photo.photoType?.toUpperCase()||'';
   document.getElementById('detail-note').value=photo.note||'';
   updateFavUI(photo.favorite);
+  updateRefUI(photo.isReference||false);
   buildExifArea(photo);
   const screen=document.getElementById('detail-screen');
   screen.style.display='flex';
@@ -1188,22 +1576,57 @@ function openDetail(id){
 function closeDetail(){
   const screen=document.getElementById('detail-screen');
   screen.classList.remove('open');
-  setTimeout(()=>{screen.style.display='none';document.querySelectorAll('.exif-card,.exif-extra-item,.technique-card,.gps-link,.histogram-wrap').forEach(el=>el.classList.remove('shown'));renderFeed();renderLibrary();},360);
+  setTimeout(()=>{screen.style.display='none';document.querySelectorAll('.exif-card,.exif-extra-item,.technique-card,.gps-link,.histogram-wrap').forEach(el=>el.classList.remove('shown'));
+  // Reset AHA block
+  const ab=document.getElementById('aha-block');if(ab){ab.classList.remove('shown');ab.style.display='none';}
+  // Fechar painel "como foi feita"
+  document.getElementById('how-panel')?.classList.remove('open');
+  document.getElementById('how-btn')?.classList.remove('open');
+  renderFeed();renderLibrary();},360);
   currentPhotoId=null;
 }
 function buildExifArea(photo){
   const exif=photo.exif||{};
   const ap=iAp(exif.aperture),sh=iSh(exif.shutterSpeed),is=iISO(exif.iso),fc=iFoc(exif.focalLength);
   const noExif=!hasExif(photo);
+
+  // ── AHA MOMENT BLOCK ──────────────────────────────────
+  const ahaBlock=document.getElementById('aha-block');
+  const ahaHeadline=document.getElementById('aha-headline');
+  const ahaTags=document.getElementById('aha-tags');
+  if(ahaBlock&&hasExif(photo)){
+    const insight=generateInsightSummary(exif);
+    const tags=buildAhaTags(exif);
+    if(insight){
+      ahaHeadline.innerHTML=insight;
+      ahaTags.innerHTML=tags.map(t=>`<span class="aha-tag">${t}</span>`).join('');
+      ahaBlock.style.display='block';
+      // animate in after a beat
+      setTimeout(()=>ahaBlock.classList.add('shown'),80);
+    } else {
+      ahaBlock.style.display='none';
+    }
+  } else if(ahaBlock){
+    ahaBlock.style.display='none';
+  }
+
   let html='';
   if(noExif&&!photo.manualExif){
     html+=`<div class="no-exif-banner"><div class="no-exif-icon">📱</div><div class="no-exif-body"><div class="no-exif-title">Sem dados EXIF</div><div class="no-exif-desc">O iOS remove os dados EXIF de fotos da biblioteca. Adicione manualmente as informações da câmera que você usou.</div><div class="no-exif-cta" onclick="openForm()">✎ Preencher manualmente</div></div></div>`;
   }
+  // Cards com hierarquia: emoji → valor técnico → explicação humana
+  const makeCard=(label,data,goldVal)=>`
+    <div class="exif-card">
+      <div class="exif-card-label">${label}</div>
+      <span class="exif-card-emoji">${data.emoji||''}</span>
+      <div class="exif-card-val${goldVal?' gold':''}\">${data.r}</div>
+      <div class="exif-card-interp">${data.i}</div>
+    </div>`;
   html+=`<div class="exif-grid">
-    <div class="exif-card"><div class="exif-card-label">Abertura</div><div class="exif-card-val gold">${ap.r}</div><div class="exif-card-interp">${ap.i}</div></div>
-    <div class="exif-card"><div class="exif-card-label">Velocidade</div><div class="exif-card-val">${sh.r}</div><div class="exif-card-interp">${sh.i}</div></div>
-    <div class="exif-card"><div class="exif-card-label">ISO</div><div class="exif-card-val">${is.r}</div><div class="exif-card-interp">${is.i}</div></div>
-    <div class="exif-card"><div class="exif-card-label">Focal</div><div class="exif-card-val">${fc.r}</div><div class="exif-card-interp">${fc.i}</div></div>
+    ${makeCard('Abertura',ap,true)}
+    ${makeCard('Velocidade',sh,false)}
+    ${makeCard('ISO',is,false)}
+    ${makeCard('Focal',fc,false)}
   </div>`;
   const extras=[];
   if(exif.lens)extras.push(['Lente',exif.lens]);
@@ -1223,6 +1646,364 @@ function buildExifArea(photo){
   buildHistogram(photo);
   const tech=genTech(exif);
   document.getElementById('detail-tech-wrap').innerHTML=tech?`<div class="section-title" style="margin-top:14px">ANÁLISE TÉCNICA</div><div class="technique-card"><div class="technique-title">O que foi feito</div><div class="technique-text">${tech}</div></div>`:'';
+  // Alimentar painel "Como foi feita"
+  const story=genPhotoStory(exif);
+  const howWrap=document.getElementById('how-btn-wrap');
+  if(howWrap){
+    if(story&&hasExif(photo)){
+      document.getElementById('how-panel-content').innerHTML=story;
+      howWrap.style.display='block';
+    } else {
+      howWrap.style.display='none';
+    }
+  }
+}
+// ═══════════════════════════════════════════════════════
+// AHA MOMENT ENGINE
+// Combina EXIF → 1 frase poderosa, máx 12 palavras
+// ═══════════════════════════════════════════════════════
+function generateInsightSummary(exif){
+  if(!exif)return null;
+  const ap=exif.aperture?parseFloat(exif.aperture):null;
+  const iso=exif.iso?parseInt(exif.iso):null;
+  let sec=null;
+  if(exif.shutterSpeed){
+    const s=exif.shutterSpeed;
+    if(typeof s==='string'&&s.includes('/')){const[n,d]=s.replace('s','').split('/');sec=+n/+d;}
+    else sec=parseFloat(s);
+  }
+  const mm=exif.focalLength?parseFloat(exif.focalLength):null;
+
+  // Casos em ordem de impacto — retorna o primeiro que casar
+  // Retratos com bokeh extremo
+  if(ap&&ap<=1.8&&mm&&mm>=50)
+    return `Fundo <em>apagado</em> porque você abriu até f/${ap}`;
+  // Bokeh geral
+  if(ap&&ap<=2.8)
+    return `Fundo desfocado graças à abertura <em>f/${ap}</em>`;
+  // Movimento congelado
+  if(sec&&sec<=1/500)
+    return `Movimento <em>congelado</em> a ${iSh(exif.shutterSpeed).r}`;
+  // Foto noturna / baixa luz com ISO alto
+  if(iso&&iso>=3200&&sec&&sec>=0.5)
+    return `Luz capturada no escuro: ISO ${iso} e exposição longa`;
+  // ISO alto compensando pouca luz
+  if(iso&&iso>=1600)
+    return `Escuridão compensada com <em>ISO ${iso}</em>`;
+  // Longa exposição criativa
+  if(sec&&sec>=1)
+    return `Exposição longa de <em>${iSh(exif.shutterSpeed).r}</em> — movimento virou luz`;
+  // Grande angular
+  if(mm&&mm<=24)
+    return `<em>${mm}mm</em> capturou tudo — céu, chão e os lados`;
+  // Telefoto forte
+  if(mm&&mm>=200)
+    return `<em>${mm}mm</em> trouxe o assunto distante para perto`;
+  // Tudo em foco, paisagem
+  if(ap&&ap>=8)
+    return `f/${ap} manteve <em>tudo nítido</em>, do primeiro ao último plano`;
+  // ISO perfeito + luz boa
+  if(iso&&iso<=200&&ap&&ap>=5.6)
+    return `Luz perfeita: ISO ${iso} e f/${ap} para <em>máxima qualidade</em>`;
+  // Focal padrão com bokeh médio
+  if(ap&&ap<=4&&mm&&mm>=35&&mm<=85)
+    return `f/${ap} com ${mm}mm — combinação <em>clássica</em> e versátil`;
+  // Genérico mas ainda útil
+  if(ap)return `Abertura <em>f/${ap}</em> definiu o estilo da cena`;
+  if(iso)return `ISO ${iso} — o sensor trabalhou para capturar esta cena`;
+  return null;
+}
+
+function buildAhaTags(exif){
+  const tags=[];
+  if(exif.aperture){const f=parseFloat(exif.aperture);tags.push(f<=2.8?'bokeh':'foco total');}
+  if(exif.shutterSpeed){
+    let sec=null;
+    const s=exif.shutterSpeed;
+    if(typeof s==='string'&&s.includes('/')){const[n,d]=s.replace('s','').split('/');sec=+n/+d;}
+    else sec=parseFloat(s);
+    if(sec!==null){
+      if(sec<=1/500)tags.push('movimento congelado');
+      else if(sec>=1)tags.push('longa exposição');
+      else tags.push('velocidade padrão');
+    }
+  }
+  if(exif.iso){const v=parseInt(exif.iso);tags.push(v<=400?'baixo ruído':v>=1600?'alto ISO':'ISO médio');}
+  if(exif.focalLength){const m=parseFloat(exif.focalLength);tags.push(m<=28?'grande angular':m>=85?'teleobjetiva':'focal normal');}
+  if(exif.exposureMode&&exif.exposureMode.toLowerCase().includes('manual'))tags.push('modo manual');
+  if(exif.flash==='Disparado')tags.push('com flash');
+  return tags.slice(0,4);
+}
+
+// ═══════════════════════════════════════════════════════
+// EXPORT CARD — com preview modal antes de salvar
+// ═══════════════════════════════════════════════════════
+let _exportCanvas=null; // cache do canvas gerado
+
+function openExportModal(){
+  const photo=photos.find(p=>p.id===currentPhotoId);if(!photo)return;
+  // Show modal immediately
+  const modal=document.getElementById('exportModal');
+  modal.style.display='flex';
+  requestAnimationFrame(()=>modal.classList.add('open'));
+  // Build canvas
+  const wrap=document.getElementById('export-canvas-wrap');
+  wrap.innerHTML='<div style="padding:40px;text-align:center;color:var(--text3);font-family:var(--font-mono);font-size:12px">A gerar card...</div>';
+  _exportCanvas=null;
+  _buildExportCanvas(photo,(canvas)=>{
+    _exportCanvas=canvas;
+    wrap.innerHTML='';
+    canvas.style.width='100%';
+    canvas.style.height='auto';
+    canvas.style.borderRadius='0';
+    wrap.appendChild(canvas);
+  });
+}
+
+function closeExportModal(){
+  const modal=document.getElementById('exportModal');
+  modal.classList.remove('open');
+  setTimeout(()=>modal.style.display='none',380);
+}
+
+function downloadExportCard(){
+  if(!_exportCanvas){showToast('Card ainda a gerar…');return;}
+  const a=document.createElement('a');
+  a.href=_exportCanvas.toDataURL('image/jpeg',0.93);
+  a.download='exif-card.jpg';
+  a.click();
+  showToast('EXIF Card salvo! ✓');
+}
+
+async function shareExportCard(){
+  if(!_exportCanvas){showToast('Card ainda a gerar…');return;}
+  if(!navigator.share&&!navigator.canShare){
+    downloadExportCard();return;
+  }
+  _exportCanvas.toBlob(async(blob)=>{
+    try{
+      const file=new File([blob],'exif-card.jpg',{type:'image/jpeg'});
+      await navigator.share({files:[file],title:'EXIF Card'});
+    }catch(e){
+      if(e.name!=='AbortError')downloadExportCard();
+    }
+  },'image/jpeg',0.93);
+}
+
+// Mantém compatibilidade com exportCard() chamado em qualquer lugar
+function exportCard(){openExportModal();}
+
+function _buildExportCanvas(photo, cb){
+  const exif=photo.exif||{};
+
+  // ── Canvas: 1080×1350 (Instagram 4:5) mas trabalhamos em 540×675 (metade)
+  // Fontes são definidas em "unidades de design" relativas a 540px de largura.
+  // Quando salvo em 1080px, dobramos tudo via scale(2).
+  // Isso evita fontes gigantes e mantém qualidade HD na exportação.
+  const DW=540, DH=675;            // dimensões de design
+  const SCALE=2;                    // fator de exportação
+  const W=DW*SCALE, H=DH*SCALE;
+  const canvas=document.createElement('canvas');
+  canvas.width=W; canvas.height=H;
+  const ctx=canvas.getContext('2d');
+  ctx.scale(SCALE,SCALE);           // ← todas as medidas abaixo são em DW/DH
+  const PAD=28;                     // margem lateral
+
+  const img=new Image();
+  img.onload=()=>{
+    // ── 1. Fundo
+    ctx.fillStyle='#060608'; ctx.fillRect(0,0,DW,DH);
+
+    // ── 2. Foto (crop cover, 54% do height)
+    const PHOTO_H=Math.round(DH*0.54);
+    const ar=img.width/img.height;
+    let dw=DW, dh=DW/ar;
+    if(dh<PHOTO_H){dh=PHOTO_H; dw=dh*ar;}
+    const dx=(DW-dw)/2, dy=(PHOTO_H-dh)/2;
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0,0,DW,PHOTO_H); ctx.clip();
+    ctx.drawImage(img,dx,dy,dw,dh);
+    ctx.restore();
+
+    // ── 3. Gradiente foto→preto (suave, longo)
+    const grd=ctx.createLinearGradient(0,PHOTO_H-140,0,PHOTO_H+20);
+    grd.addColorStop(0,'rgba(6,6,8,0)');
+    grd.addColorStop(0.65,'rgba(6,6,8,0.82)');
+    grd.addColorStop(1,'rgba(6,6,8,1)');
+    ctx.fillStyle=grd; ctx.fillRect(0,PHOTO_H-140,DW,160);
+
+    // ── 4. Watermark (discreto, vertical)
+    const wmText=localStorage.getItem('exif_watermark')||'';
+    const wmOn=localStorage.getItem('exif_wm_enabled')!=='false';
+    if(wmText&&wmOn){
+      ctx.save();
+      ctx.beginPath(); ctx.rect(0,0,DW,PHOTO_H); ctx.clip();
+      ctx.globalAlpha=0.38;
+      ctx.translate(DW-18, PHOTO_H/2);
+      ctx.rotate(Math.PI/2);
+      ctx.fillStyle='#fff';
+      ctx.font='400 12px "DM Sans",sans-serif';
+      ctx.textAlign='center';
+      ctx.fillText(wmText,0,0);
+      ctx.restore();
+    }
+
+    // ── 5. Separador dourado
+    const SEP_Y=PHOTO_H+14;
+    ctx.strokeStyle='rgba(200,169,106,0.35)'; ctx.lineWidth=0.5;
+    ctx.beginPath(); ctx.moveTo(PAD,SEP_Y); ctx.lineTo(DW-PAD,SEP_Y); ctx.stroke();
+
+    // ── 6. Insight / frase AHA (a "headline" do card)
+    let cy=SEP_Y+22;
+    const insight=generateInsightSummary(exif);
+    if(insight){
+      const txt=insight.replace(/<[^>]*>/g,'');
+      ctx.fillStyle='#c8a96a';
+      ctx.font='700 18px "Syne",sans-serif';
+      ctx.textAlign='left';
+      // word-wrap
+      const words=txt.split(' ');
+      let line=''; const maxW=DW-PAD*2; const LH=24;
+      for(const w of words){
+        const test=line?line+' '+w:w;
+        if(ctx.measureText(test).width>maxW&&line){
+          ctx.fillText(line,PAD,cy); cy+=LH; line=w;
+        } else line=test;
+      }
+      if(line){ctx.fillText(line,PAD,cy); cy+=LH;}
+      cy+=8;
+    }
+
+    // ── 7. Câmera (linha discreta cinza)
+    const camera=[exif.make,exif.model].filter(Boolean).join(' ');
+    if(camera){
+      ctx.fillStyle='#606070';
+      ctx.font='400 10px "DM Sans",sans-serif';
+      ctx.textAlign='left';
+      ctx.fillText(camera.length>42?camera.slice(0,42)+'…':camera, PAD, cy);
+      cy+=16;
+    }
+
+    // ── 8. Grid 2×2 de valores EXIF (alinhado, compacto)
+    const vals=[
+      {label:'ABERTURA', val: exif.aperture?`f/${parseFloat(exif.aperture).toFixed(1)}`:'—'},
+      {label:'VELOCIDADE', val: exif.shutterSpeed?iSh(exif.shutterSpeed).r:'—'},
+      {label:'ISO',       val: exif.iso?String(exif.iso):'—'},
+      {label:'FOCAL',     val: exif.focalLength?`${Math.round(parseFloat(exif.focalLength))}mm`:'—'},
+    ];
+    cy+=6;
+    const COL=2, CELL_W=(DW-PAD*2)/COL, CELL_H=44;
+    vals.forEach((v,i)=>{
+      const col=i%COL, row=Math.floor(i/COL);
+      const cx2=PAD+col*CELL_W;
+      const cy2=cy+row*CELL_H;
+      // label
+      ctx.fillStyle='#4a4a5a';
+      ctx.font='600 8px "DM Mono",monospace';
+      ctx.textAlign='left';
+      ctx.fillText(v.label, cx2, cy2+10);
+      // value
+      ctx.fillStyle='#ededf0';
+      ctx.font='700 20px "DM Mono",monospace';
+      ctx.fillText(v.val, cx2, cy2+32);
+      // thin divider between cells (vertical)
+      if(col===0){
+        ctx.strokeStyle='rgba(255,255,255,0.07)'; ctx.lineWidth=0.5;
+        ctx.beginPath(); ctx.moveTo(PAD+CELL_W,cy2+4); ctx.lineTo(PAD+CELL_W,cy2+CELL_H-4); ctx.stroke();
+      }
+    });
+    cy+=COL*CELL_H+4;
+
+    // ── 9. Lente (se disponível)
+    if(exif.lens){
+      ctx.fillStyle='#48485a';
+      ctx.font='400 9px "DM Mono",monospace';
+      ctx.textAlign='left';
+      const lensStr=exif.lens.length>50?exif.lens.slice(0,50)+'…':exif.lens;
+      ctx.fillText(lensStr, PAD, cy);
+      cy+=14;
+    }
+
+    // ── 10. Tags pill row
+    const tags=buildAhaTags(exif);
+    if(tags.length){
+      cy+=4;
+      ctx.font='400 9px "DM Mono",monospace';
+      let tx=PAD;
+      for(const tag of tags){
+        const tw=ctx.measureText(tag).width+16;
+        if(tx+tw>DW-PAD) break;
+        const ph=18, pr=9;
+        ctx.fillStyle='rgba(200,169,106,0.12)';
+        ctx.beginPath(); ctx.roundRect(tx, cy-pr+1, tw, ph, pr); ctx.fill();
+        ctx.strokeStyle='rgba(200,169,106,0.3)'; ctx.lineWidth=0.5;
+        ctx.beginPath(); ctx.roundRect(tx, cy-pr+1, tw, ph, pr); ctx.stroke();
+        ctx.fillStyle='#c8a96a';
+        ctx.fillText(tag, tx+8, cy+2);
+        tx+=tw+6;
+      }
+      cy+=14;
+    }
+
+    // ── 11. Histograma (fino, no rodapé)
+    const HIST_TOP=DH-58;
+    const HW=DW-PAD*2, HH=22;
+    {
+      const offW=300, offH=Math.round(300*(img.height/img.width));
+      const off=document.createElement('canvas'); off.width=offW; off.height=offH;
+      const oc=off.getContext('2d'); oc.drawImage(img,0,0,offW,offH);
+      const pd=oc.getImageData(0,0,offW,offH).data;
+      const rH=new Uint32Array(256),gH=new Uint32Array(256),bH=new Uint32Array(256);
+      for(let i=0;i<pd.length;i+=4){rH[pd[i]]++;gH[pd[i+1]]++;bH[pd[i+2]]++;}
+      const mv=Math.max(...rH,...gH,...bH)||1;
+      const bw=HW/256;
+      // bg
+      ctx.fillStyle='rgba(255,255,255,0.03)';
+      ctx.beginPath(); ctx.roundRect(PAD,HIST_TOP,HW,HH,4); ctx.fill();
+      const drawH=(arr,color)=>{
+        ctx.save(); ctx.beginPath(); ctx.rect(PAD,HIST_TOP,HW,HH); ctx.clip();
+        ctx.fillStyle=color; ctx.beginPath();
+        for(let i=0;i<256;i++){
+          const x=PAD+i*bw, h=(arr[i]/mv)*(HH-2);
+          if(i===0) ctx.moveTo(x,HIST_TOP+HH-h); else ctx.lineTo(x,HIST_TOP+HH-h);
+        }
+        ctx.lineTo(PAD+HW,HIST_TOP+HH); ctx.lineTo(PAD,HIST_TOP+HH); ctx.closePath();
+        ctx.fill(); ctx.restore();
+      };
+      drawH(bH,'rgba(90,175,224,0.5)');
+      drawH(gH,'rgba(90,224,150,0.38)');
+      drawH(rH,'rgba(224,90,90,0.5)');
+    }
+
+    // ── 12. Rodapé: EXIF + data (baseline alinhado)
+    const FOOT_Y=DH-12;
+    ctx.font='800 14px "Syne",sans-serif';
+    ctx.fillStyle='#c8a96a'; ctx.textAlign='left';
+    ctx.fillText('EXIF', PAD, FOOT_Y);
+
+    ctx.font='400 9px "DM Mono",monospace';
+    ctx.fillStyle='#38384a';
+    const dateStr=fmtDate(photo.timestamp).split(',')[0]||'';
+    if(dateStr) ctx.fillText(dateStr, PAD+44, FOOT_Y);
+
+    // local (direita)
+    if(exif.location){
+      ctx.fillStyle='#555565';
+      ctx.font='400 9px "DM Mono",monospace';
+      ctx.textAlign='right';
+      ctx.fillText('📍 '+exif.location, DW-PAD, FOOT_Y);
+    }
+
+    cb(canvas);
+  };
+  img.onerror=()=>{
+    ctx.fillStyle='#060608'; ctx.fillRect(0,0,DW,DH);
+    ctx.font='400 14px "DM Sans",sans-serif'; ctx.fillStyle='#9090a0'; ctx.textAlign='center';
+    ctx.fillText('Erro ao carregar imagem',DW/2,DH/2);
+    cb(canvas);
+  };
+  img.crossOrigin='anonymous';
+  img.src=photo.uri;
 }
 
 function buildHistogram(photo){
@@ -1294,6 +2075,24 @@ function animateExif(){
   document.querySelectorAll('.exif-extra-item').forEach((el,i)=>setTimeout(()=>el.classList.add('shown'),380+i*55));
   document.querySelectorAll('.gps-link,.technique-card').forEach((el,i)=>setTimeout(()=>el.classList.add('shown'),520+i*80));
 }
+
+// ═══ PAINEL "COMO FOI FEITA" ═══
+function toggleHowPanel(){
+  const btn=document.getElementById('how-btn');
+  const panel=document.getElementById('how-panel');
+  if(!btn||!panel)return;
+  const isOpen=panel.classList.contains('open');
+  btn.classList.toggle('open',!isOpen);
+  panel.classList.toggle('open',!isOpen);
+  // Scroll suave até o painel após abrir
+  if(!isOpen){
+    setTimeout(()=>{
+      const scroll=document.querySelector('.detail-scroll');
+      const btnTop=btn.getBoundingClientRect().top;
+      if(scroll&&btnTop){scroll.scrollBy({top:btnTop-120,behavior:'smooth'});}
+    },80);
+  }
+}
 function updateFavUI(fav){
   document.getElementById('detail-fav-btn').textContent=fav?'♥':'♡';
   const a=document.getElementById('detail-fav-action');
@@ -1308,187 +2107,6 @@ document.getElementById('detail-note').addEventListener('input',function(){const
 // ═══ SWIPE TO CLOSE ═══
 (()=>{let y=0;const ov=document.getElementById('detail-screen');ov.addEventListener('touchstart',e=>{y=e.touches[0].clientY;},{passive:true});ov.addEventListener('touchend',e=>{if(e.changedTouches[0].clientY-y>80)closeDetail();},{passive:true});})();
 
-// ═══ EXPORT CARD ═══
-function exportCard(){
-  const photo=photos.find(p=>p.id===currentPhotoId);if(!photo)return;
-  const canvas=document.getElementById('shareCanvas');
-  const ctx=canvas.getContext('2d');
-
-  // Canvas: 1080 × 1620 (proporção 2:3, ideal para Stories e posts)
-  const W=1080, H=1920;
-  canvas.width=W; canvas.height=H;
-
-  const PHOTO_H=810;       // metade superior = foto
-  const INFO_Y=PHOTO_H;    // início do bloco preto
-  const PAD=64;            // margem lateral
-
-  const img=new Image();
-  img.onload=()=>{
-    /* ── 1. Fundo total preto ── */
-    ctx.fillStyle='#060608';
-    ctx.fillRect(0,0,W,H);
-
-    /* ── 2. Foto preenchendo topo (cover crop) ── */
-    const ar=img.width/img.height;
-    let dw=W, dh=W/ar;
-    if(dh<PHOTO_H){dh=PHOTO_H; dw=dh*ar;}
-    const dx=(W-dw)/2, dy=(PHOTO_H-dh)/2;
-    ctx.save();
-    ctx.beginPath();ctx.rect(0,0,W,PHOTO_H);ctx.clip();
-    ctx.drawImage(img,dx,dy,dw,dh);
-    ctx.restore();
-
-    /* ── 3. Gradiente suave foto→preto ── */
-    const grad=ctx.createLinearGradient(0,PHOTO_H-220,0,PHOTO_H+20);
-    grad.addColorStop(0,'rgba(6,6,8,0)');
-    grad.addColorStop(1,'rgba(6,6,8,1)');
-    ctx.fillStyle=grad;
-    ctx.fillRect(0,PHOTO_H-220,W,240);
-
-    /* ── 3b. Watermark vertical na foto (borda direita, centro vertical) ── */
-    const wmText=localStorage.getItem('exif_watermark')||'';
-    const wmEnabled=localStorage.getItem('exif_wm_enabled')!=='false';
-    if(wmText&&wmEnabled){
-      ctx.save();
-      // clip dentro da área da foto
-      ctx.beginPath();ctx.rect(0,0,W,PHOTO_H);ctx.clip();
-      ctx.globalAlpha=0.55;
-      // posicionar na borda direita, centralizado verticalmente na foto
-      const wmX=W-36;
-      const wmY=PHOTO_H/2;
-      ctx.translate(wmX, wmY);
-      ctx.rotate(Math.PI/2); // texto de baixo pra cima
-      ctx.fillStyle='#ffffff';
-      ctx.font='400 26px "DM Sans",sans-serif';
-      ctx.textAlign='center';
-      ctx.letterSpacing='2px';
-      ctx.fillText(wmText, 0, 0);
-      ctx.restore();
-    }
-
-    /* ── 4. Linha separadora dourada fina ── */
-    ctx.fillStyle='rgba(200,169,106,0.35)';
-    ctx.fillRect(0,PHOTO_H,W,1);
-
-    /* ── 5. Branding EXIF ── */
-    let cy=INFO_Y+80;
-    ctx.fillStyle='#c8a96a';
-    ctx.font='700 52px "DM Mono",monospace';
-    ctx.fillText('EXIF', PAD, cy);
-
-    cy+=42;
-    ctx.fillStyle='#48485a';
-    ctx.font='400 30px "DM Mono",monospace';
-    ctx.letterSpacing='3px';
-    ctx.fillText('DIÁRIO VISUAL', PAD, cy);
-    ctx.letterSpacing='0px';
-
-    /* ── 6. Dados EXIF ── */
-    const e=photo.exif||{};
-    const camera=[e.make,e.model].filter(Boolean).join(' ');
-
-    cy+=88;
-
-    // Câmera (tamanho médio, cor branca suave)
-    if(camera){
-      ctx.fillStyle='#9090a0';
-      ctx.font='400 34px "DM Sans",sans-serif';
-      ctx.fillText(camera, PAD, cy);
-      cy+=68;
-    }
-
-    // Dados principais — fonte grande e bold
-    const mainLines=[
-      e.aperture ? `f/${parseFloat(e.aperture)}` : null,
-      e.shutterSpeed ? iSh(e.shutterSpeed).r : null,
-      e.iso ? `ISO ${e.iso}` : null,
-      e.focalLength ? `${parseFloat(e.focalLength)}mm` : null,
-    ].filter(Boolean);
-
-    ctx.fillStyle='#ededf0';
-    ctx.font='700 80px "DM Sans",sans-serif';
-    mainLines.forEach(line=>{
-      ctx.fillText(line, PAD, cy);
-      cy+=104;
-    });
-
-    /* ── 7. Linha extra: local (se disponível) ── */
-    if(e.location){
-      cy+=8;
-      ctx.fillStyle='#c8a96a';
-      ctx.font='400 32px "DM Mono",monospace';
-      ctx.fillText('📍 '+e.location, PAD, cy);
-      cy+=50;
-    }
-
-    /* ── 8. Histograma ── */
-    cy+=24;
-    const HIST_W=W-PAD*2, HIST_H=120;
-    {
-      // offscreen canvas para amostrar pixels da foto
-      const offW=300,offH=Math.round(offW*(img.height/img.width));
-      const off=document.createElement('canvas');
-      off.width=offW;off.height=offH;
-      const octx=off.getContext('2d');
-      octx.drawImage(img,0,0,offW,offH);
-      const pdata=octx.getImageData(0,0,offW,offH).data;
-      const rH=new Uint32Array(256),gH=new Uint32Array(256),bH=new Uint32Array(256),lumH=new Uint32Array(256);
-      for(let i=0;i<pdata.length;i+=4){
-        rH[pdata[i]]++;gH[pdata[i+1]]++;bH[pdata[i+2]]++;
-        lumH[Math.round(0.299*pdata[i]+0.587*pdata[i+1]+0.114*pdata[i+2])]++;
-      }
-      const maxV=Math.max(...rH,...gH,...bH);
-      const bw=HIST_W/256;
-      // Fundo do histograma
-      ctx.fillStyle='rgba(255,255,255,0.04)';
-      ctx.beginPath();
-      ctx.roundRect(PAD,cy,HIST_W,HIST_H,8);
-      ctx.fill();
-      // Label
-      ctx.fillStyle='rgba(72,72,90,0.9)';
-      ctx.font='500 22px "DM Mono",monospace';
-      ctx.fillText('HISTOGRAMA', PAD, cy-10);
-      // Canais R, G, B
-      const drawChan=(arr,color)=>{
-        ctx.save();ctx.beginPath();ctx.rect(PAD,cy,HIST_W,HIST_H);ctx.clip();
-        ctx.beginPath();
-        for(let i=0;i<256;i++){
-          const x=PAD+i*bw, h=(arr[i]/maxV)*HIST_H;
-          if(i===0)ctx.moveTo(x,cy+HIST_H-h);else ctx.lineTo(x,cy+HIST_H-h);
-        }
-        ctx.lineTo(PAD+HIST_W,cy+HIST_H);ctx.lineTo(PAD,cy+HIST_H);ctx.closePath();
-        ctx.fillStyle=color;ctx.fill();ctx.restore();
-      };
-      drawChan(bH,'rgba(90,175,224,0.4)');
-      drawChan(gH,'rgba(90,224,150,0.3)');
-      drawChan(rH,'rgba(224,90,90,0.4)');
-      // Luminância
-      const maxL=Math.max(...lumH);
-      ctx.save();ctx.beginPath();ctx.rect(PAD,cy,HIST_W,HIST_H);ctx.clip();
-      ctx.beginPath();
-      for(let i=0;i<256;i++){
-        const x=PAD+i*bw, h=(lumH[i]/maxL)*HIST_H;
-        if(i===0)ctx.moveTo(x,cy+HIST_H-h);else ctx.lineTo(x,cy+HIST_H-h);
-      }
-      ctx.strokeStyle='rgba(237,237,240,0.65)';ctx.lineWidth=1.5;ctx.stroke();ctx.restore();
-      cy+=HIST_H+20;
-    }
-
-    /* ── 9. Data no rodapé ── */
-    ctx.fillStyle='#38384a';
-    ctx.font='400 30px "DM Mono",monospace';
-    ctx.fillText(fmtDate(photo.timestamp), PAD, H-48);
-
-    /* ── 10. Download ── */
-    const a=document.createElement('a');
-    a.href=canvas.toDataURL('image/jpeg',0.93);
-    a.download='exif-card.jpg';
-    a.click();
-    showToast('Cartão exportado! ✓');
-  };
-  img.crossOrigin='anonymous';
-  img.src=photo.uri;
-}
 
 // ═══ COMPARE ═══
 let cmpStep=0; // 0=picker, 1=result
@@ -1677,7 +2295,22 @@ document.addEventListener('DOMContentLoaded',()=>{
   const inp=document.getElementById('verifiedCodeInput');
   if(inp) inp.addEventListener('keydown',e=>{if(e.key==='Enter')submitVerifiedCode();});
 });
-// ═══ TOAST ═══
+// ═══ SERVICE WORKER (PWA) ═══
+if('serviceWorker' in navigator){
+  const swCode=`
+    const CACHE='exif-v7';
+    self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['.']))));
+    self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{
+      const clone=res.clone();
+      caches.open(CACHE).then(c=>c.put(e.request,clone));
+      return res;
+    }).catch(()=>r))));
+  `;
+  const blob=new Blob([swCode],{type:'application/javascript'});
+  const swUrl=URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl).catch(()=>{});
+}
+
 let toastT;
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2400);}
 
@@ -1687,6 +2320,38 @@ renderPotd();
 // initial verified badge
 requestAnimationFrame(()=>{const hb=document.getElementById('header-verified-badge');if(hb)hb.innerHTML=getVerifiedBadgeHTML();});
 </script>
+
+<!-- EXPORT PREVIEW MODAL -->
+<div class="export-modal" id="exportModal" onclick="if(event.target===this)closeExportModal()">
+  <div class="export-sheet">
+    <div class="export-handle"></div>
+    <div class="export-header">
+      <div class="export-title">EXIF Card</div>
+      <button class="export-close" onclick="closeExportModal()">✕</button>
+    </div>
+    <div class="export-preview">
+      <div class="export-canvas-wrap" id="export-canvas-wrap"></div>
+    </div>
+    <div class="export-actions">
+      <button class="export-dl-btn" onclick="downloadExportCard()">
+        ↓ Salvar imagem
+      </button>
+      <button class="export-share-btn" onclick="shareExportCard()">
+        ↑ Compartilhar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- PWA INSTALL BANNER -->
+<div class="pwa-banner" id="pwaBanner">
+  <div class="pwa-banner-icon">📲</div>
+  <div class="pwa-banner-text">
+    <div class="pwa-banner-title">Instalar EXIF no iPhone</div>
+    <div class="pwa-banner-sub">Toque em <strong>Compartilhar</strong> → "Adicionar à Tela Inicial"</div>
+  </div>
+  <div class="pwa-banner-close" onclick="dismissPWA()">✕</div>
+</div>
 
 <!-- VERIFIED MODAL -->
 <div class="verified-modal-overlay" id="verifiedModal">
